@@ -1,0 +1,5 @@
+= effective_form_with(model: [:admin, work_experience_category], engine: true) do |f|
+  = f.text_field :title
+  = f.number_field :minimum_hours
+
+  = effective_submit(f)

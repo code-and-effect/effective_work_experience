@@ -1,0 +1,79 @@
+%table.table.table-sm.table-striped.table-hover.effective-table-summary.mb-0
+  - user = work_experience_summary.user
+  - admin = request.path.start_with?('/admin')
+
+  %tbody
+    %tr
+      %th Intern
+      %td
+        = render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: user)
+
+        - if admin
+          - url = (polymorphic_admin_path(user) rescue nil)
+          - if url.present?
+            %div= link_to(user, url)
+
+    - if admin && defined?(EffectiveMemberships) && (membership = user.try(:membership)).present?
+      %tr
+        %th Membership
+        %td
+          Joined on #{membership.joined_on.strftime('%F')}
+          - if membership.reregistered?
+            and last changed on #{membership.registration_on.strftime('%F')}
+
+          = collapse('show membership history', card_class: '', link_class: 'p-0 ml-4') do
+            = render_datatable(::Admin::EffectiveMembershipHistoriesDatatable.new(owner: user, actions: false), simple: true)
+
+    - if work_experience_summary.mentor.present?
+      %tr
+        %th Mentor
+        %td
+          = render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.mentor)
+
+          - if admin
+            - url = (polymorphic_admin_path(work_experience_summary.mentor) rescue nil)
+            - if url.present?
+              %div= link_to(work_experience_summary.mentor, url)
+
+    - if work_experience_summary.supervisor.present?
+      %tr
+        %th Supervisor
+        %td= render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.supervisor)
+
+    - if (outside_mentor = user.try(:work_experience_outside_mentor)).present?
+      %tr
+        %th Outside Mentor
+        %td
+          = outside_mentor.name
+          %div= outside_mentor.regulated_profession
+          %div
+            = mail_to(outside_mentor.email)
+            = outside_mentor.phone
+
+    %tr
+      %th Period
+      %td= work_experience_summary.period
+
+    %tr
+      %th Hours this period
+      %td= work_experience_hours_to_s(work_experience_summary.total_hours)
+
+    %tr
+      %th Total hours to date
+      %td= work_experience_hours_to_s(work_experience_summary.total_hours_to_date)
+
+    %tr
+      %th Status
+      %td
+        %span.badge.badge-secondary= work_experience_summary.status_label
+        = work_experience_summary.summary
+
+    - if work_experience_summary.was_submitted?
+      %tr
+        %th Submitted
+        %td= work_experience_summary.submitted_at.strftime('%F')
+
+    - if work_experience_summary.was_reviewed?
+      %tr
+        %th Reviewed
+        %td= work_experience_summary.reviewed_at.strftime('%F')

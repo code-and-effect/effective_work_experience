@@ -1,0 +1,19 @@
+= render 'layout' do
+  = render 'effective/work_experience_summaries/content', resource: resource
+  - raise('expected a submitted work experience summary') unless resource.was_submitted?
+
+  .alert.alert-success.mb-4
+    This #{etd(resource.class)} was submitted on #{resource.submitted_at.strftime('%F')}
+
+  - unless resource.reviewed?
+    = card do
+      %p
+        Your #{etd(resource.class)} must still be reviewed.
+        We will send
+        %strong= resource.user.email
+        an email with any updates
+
+  = render('effective/work_experience_summaries/work_experience_summary', work_experience_summary: resource)
+
+  .mb-4
+    = link_to "Return to Dashboard", return_to_dashboard_path, class: 'btn btn-lg btn-primary btn-block'

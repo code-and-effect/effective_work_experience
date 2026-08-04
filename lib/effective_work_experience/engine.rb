@@ -7,5 +7,13 @@ module EffectiveWorkExperience
       eval File.read("#{config.root}/config/effective_work_experience.rb")
     end
 
+    # Include the work experience concerns and allow any ActiveRecord object to call them
+    initializer 'effective_work_experience.active_record' do |app|
+      app.config.to_prepare do
+        ActiveRecord::Base.extend(EffectiveWorkExperienceSummary::Base)
+        ActiveRecord::Base.extend(EffectiveWorkExperienceUser::Base)
+      end
+    end
+
   end
 end

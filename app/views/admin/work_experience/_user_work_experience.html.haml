@@ -1,0 +1,19 @@
+= card(et(Effective::WorkExperienceReport)) do
+  = collapse("Show summary", card_class: 'mt-3') do
+    - work_experience_report = Effective::WorkExperienceReport.new(user: user)
+    = render('effective/work_experience_reports/work_experience_report', work_experience_report: work_experience_report)
+
+= card(Bcsla::WorkExperienceSummary) do
+  %p.text-muted Three-month work experience summaries are submitted by the intern and approved by their mentor.
+  - datatable = Admin::EffectiveWorkExperienceSummariesDatatable.new(user: user)
+  = render_datatable(datatable, inline: true)
+
+= card(Effective::WorkExperienceRecord) do
+  %p.text-muted Monthly work experience records are used to keep track of the intern's hours each month.
+  - datatable = Admin::EffectiveWorkExperienceRecordsDatatable.new(user: user)
+  = render_datatable(datatable, inline: true)
+
+= card(Effective::WorkExperienceProject) do
+  %p.text-muted Work experience projects are used to keep track of the intern's projects.
+  - datatable = Admin::EffectiveWorkExperienceProjectsDatatable.new(user: user)
+  = render_datatable(datatable, inline: true)

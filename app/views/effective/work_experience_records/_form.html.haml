@@ -1,0 +1,5 @@
+.card
+  .card-body
+    = effective_form_with(model: work_experience_record, engine: true) do |f|
+      = render('effective/work_experience_records/fields', f: f)
+      = effective_submit(f)

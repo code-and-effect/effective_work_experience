@@ -1,0 +1,7 @@
+= user.to_s
+%br
+= mail_to(user&.email)
+
+- if user.try(:membership).try(:number).present?
+  %br
+  = "##{user.membership.number}"

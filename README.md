@@ -2,6 +2,8 @@
 
 Interns record their work experience hours and projects, and mentors review them.
 
+Interns record their hours each month against a set of work experience subcategories, and record the projects they worked on. Every few months they submit a summary of that period, which is reviewed by their mentor. A work experience report totals everything to date against the minimum hours of each category.
+
 ## Getting Started
 
 This requires Rails 6+ and Twitter Bootstrap 4 and just works with Devise.
@@ -36,6 +38,73 @@ Then migrate the database:
 rake db:migrate
 ```
 
+## Models
+
+- `Effective::WorkExperienceCategory` — the top level grouping, with a minimum hours target
+- `Effective::WorkExperienceSubcategory` — belongs to a category. Hours are recorded against these.
+- `Effective::WorkExperienceRecord` — one intern's hours for one month
+- `Effective::WorkExperienceEntry` — one row of a record. Five weeks of hours for one subcategory.
+- `Effective::WorkExperienceProject` — one project an intern worked on
+- `Effective::WorkExperienceSummary` — one period, submitted by the intern and reviewed by their mentor
+- `Effective::WorkExperienceOutsideMentor` — a mentor without an account, stored as freeform fields
+- `Effective::WorkExperienceReport` — an ActiveModel report of everything to date
+
+The work experience summary is the only swappable class. Mark your own with `effective_work_experience_summary`:
+
+```ruby
+module Bcsla
+  class WorkExperienceSummary < ApplicationRecord
+    effective_work_experience_summary
+  end
+end
+```
+
+and configure it:
+
+```ruby
+config.work_experience_summary_class_name = 'Bcsla::WorkExperienceSummary'
+```
+
+## User
+
+Add the following to your User model:
+
+```ruby
+effective_work_experience_user
+```
+
+This requires a `work_experience_mentor_id` column on your users table, and adds:
+
+- `work_experience_mentor` — the user who reviews my work experience summaries
+- `work_experience_mentees` — the interns I am a mentor for
+- `work_experience_outside_mentor` — my mentor when they don't have an account. A `has_one`.
+- `work_experience_records`, `work_experience_entries`, `work_experience_projects`, `work_experience_summaries`, `mentee_work_experience_summaries`
+- the `work_experience_hours`, `work_experience_hours_by_year` and `work_experience_total_hours_to_date` calculations
+
+An intern with an outside mentor has no `work_experience_mentor`, so their summaries are reviewed automatically on submit.
+
+The summary's `user`, `mentor` and `supervisor` are polymorphic. A summary assigns its mentor from the user's `work_experience_mentor`, and its supervisor from the user's `supervisor` when your User model defines one.
+
+Render the mentor fields from your own admin user form:
+
+```haml
+= render('effective/work_experience/user_fields', f: f)
+```
+
+This is the `work_experience_mentor` select plus an `f.has_many` builder for the one outside mentor.
+
+## Dashboard
+
+Render the dashboard partials from your own dashboard:
+
+```haml
+- if current_user.work_experience_intern?
+  = render 'effective/work_experience/dashboard_intern'
+
+- if current_user.work_experience_mentor?
+  = render 'effective/work_experience/dashboard_mentor'
+```
+
 ## Configuration
 
 All configuration options are documented in the `config/initializers/effective_work_experience.rb` initializer.
@@ -50,11 +119,51 @@ The permissions you actually want to define are as follows (using CanCan):
 
 ```ruby
 if user.persisted?
+  can([:index, :show, :new, :create], Effective::WorkExperienceRecord) { |record| record.user == user }
+  can([:edit, :update], Effective::WorkExperienceRecord) { |record| !record.backdated? && !record.was_reviewed? }
+  can(:destroy, Effective::WorkExperienceRecord) { |record| !record.backdated? && !record.was_submitted? }
+
+  can(crud, Effective::WorkExperienceProject) { |project| project.user == user }
+
+  can([:new, :create], EffectiveWorkExperience.WorkExperienceSummary) { |summary| summary.user == user }
+  can(:destroy, EffectiveWorkExperience.WorkExperienceSummary) { |summary| summary.user == user && summary.draft? }
+
+  can([:show, :index], EffectiveWorkExperience.WorkExperienceSummary) do |summary|
+    summary.user == user || (summary.mentor == user && summary.was_submitted?)
+  end
+
+  can(:update, EffectiveWorkExperience.WorkExperienceSummary) do |summary|
+    (summary.user == user && !summary.was_submitted?) || (summary.mentor == user && summary.was_submitted?)
+  end
+
+  can(:show, Effective::WorkExperienceReport) { |report| report.user == user || report.mentor == user }
+
+  if user.work_experience_mentor?
+    can(:index, EffectiveWorkExperienceReportsReviewDatatable)
+  end
 end
 
 if user.admin?
   can :admin, :effective_work_experience
+
+  can([:index, :edit, :update], Effective::WorkExperienceCategory)
+  can([:index, :edit, :update], Effective::WorkExperienceSubcategory)
+  can(crud - [:show], Effective::WorkExperienceProject)
+  can(crud - [:show], Effective::WorkExperienceRecord)
+  can(crud, Effective::WorkExperienceReport)
+  can(crud, EffectiveWorkExperience.WorkExperienceSummary)
+  can(:index, Admin::EffectiveWorkExperienceReportsDatatable)
 end
+```
+
+Add a link to the admin menu:
+
+```haml
+- if can? :admin, :effective_work_experience
+  = nav_link_to Effective::WorkExperienceRecord, effective_work_experience.admin_work_experience_records_path
+  = nav_link_to Effective::WorkExperienceProject, effective_work_experience.admin_work_experience_projects_path
+  = nav_link_to EffectiveWorkExperience.WorkExperienceSummary, effective_work_experience.admin_work_experience_summaries_path
+  = nav_link_to Effective::WorkExperienceReport, effective_work_experience.admin_work_experience_reports_path
 ```
 
 ## License

@@ -1,0 +1,7 @@
+= tabs do
+  = tab(work_experience_category) do
+    = render 'admin/work_experience_categories/form_work_experience_category', work_experience_category: work_experience_category
+
+  - if work_experience_category.persisted? && work_experience_category.respond_to?(:logs_datatable)
+    = tab 'Logs' do
+      = render_datatable(work_experience_category.logs_datatable, inline: true)

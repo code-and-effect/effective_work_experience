@@ -1,0 +1,13 @@
+= render 'layout' do
+  = render 'effective/work_experience_summaries/content', resource: resource
+
+  = card do
+    %p Please review the following #{etd(resource.class)}
+
+  = render('effective/work_experience_summaries/work_experience_summary', work_experience_summary: resource)
+
+  = effective_form_with(model: resource, url: wizard_path(step), method: :put) do |f|
+    = card('Review') do
+      = render('effective/work_experience_summaries/review_fields', f: f)
+
+    = f.submit 'Complete Mentor Review', left: true, class: 'btn btn-primary btn-lg btn-block'

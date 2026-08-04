@@ -1,0 +1,14 @@
+= render 'layout' do
+  = render 'effective/work_experience_summaries/content', resource: resource
+
+  = card do
+    %p Displaying all #{etsd(Effective::WorkExperienceProject)} for #{resource.period}:
+    %p Please confirm the following:
+    = render('effective/work_experience_summaries/projects_datatable', work_experience_summary: resource)
+
+    = effective_form_with(model: resource, url: wizard_path(step), method: :put) do |f|
+      = f.hidden_field :id
+
+      = render('effective/work_experience_summaries/projects_fields', f: f)
+
+      = f.submit 'Save and Continue', left: true

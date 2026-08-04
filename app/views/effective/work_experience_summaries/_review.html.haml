@@ -1,0 +1,4 @@
+- unless current_user == work_experience_summary.user
+  = wizard_card(work_experience_summary) do
+    = effective_table_with(work_experience_summary) do |f|
+      = render("effective/work_experience_summaries/review_fields", f: f)

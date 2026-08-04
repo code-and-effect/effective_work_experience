@@ -1,0 +1,7 @@
+.work-experience-summary
+  = card("#{work_experience_summary.summary_months}-Month Work Experience Summary") do
+    = render('effective/work_experience_summaries/summary', work_experience_summary: work_experience_summary)
+
+  - work_experience_summary.render_steps.each do |partial|
+    - work_experience_summary.render_step = partial
+    = render "effective/work_experience_summaries/#{partial}", work_experience_summary: work_experience_summary
