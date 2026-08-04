@@ -136,20 +136,17 @@ module EffectiveWorkExperienceSummary
     end
   end
 
-  # The intern completes the first half of the wizard, the mentor completes the second half
-  INTERN_STEPS = [:start, :records, :projects, :submit, :submitted, :reviewed]
-  MENTOR_STEPS = [:submitted, :review, :reviewed]
-
   def to_s
     start_on&.strftime('%B %Y') || model_name.human
   end
 
+  # The intern completes the first half of the wizard, the mentor completes the second half
   def intern_steps
-    INTERN_STEPS
+    [:start, :records, :projects, :submit, :submitted, :reviewed]
   end
 
   def mentor_steps
-    MENTOR_STEPS
+    [:submitted, :review, :reviewed]
   end
 
   def recommendations
