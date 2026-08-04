@@ -27,11 +27,6 @@ module EffectiveWorkExperience
     work_experience_summary_class_name&.constantize || Effective::WorkExperienceSummary
   end
 
-  # The class name as a string. Used by the associations, before the classes are loaded.
-  def self.work_experience_summary_class_name!
-    work_experience_summary_class_name || 'Effective::WorkExperienceSummary'
-  end
-
   def self.mailer_class
     mailer&.constantize || Effective::WorkExperienceMailer
   end

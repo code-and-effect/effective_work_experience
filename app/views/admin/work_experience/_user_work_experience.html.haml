@@ -1,10 +1,12 @@
+-# Render this from your admin user form to display an intern's work experience
+-# = render('admin/work_experience/user_work_experience', user: user)
 = card(et(Effective::WorkExperienceReport)) do
   = collapse("Show summary", card_class: 'mt-3') do
     - work_experience_report = Effective::WorkExperienceReport.new(user: user)
     = render('effective/work_experience_reports/work_experience_report', work_experience_report: work_experience_report)
 
-= card(Bcsla::WorkExperienceSummary) do
-  %p.text-muted Three-month work experience summaries are submitted by the intern and approved by their mentor.
+= card(EffectiveWorkExperience.WorkExperienceSummary) do
+  %p.text-muted #{EffectiveWorkExperience.summary_months}-month work experience summaries are submitted by the intern and approved by their mentor.
   - datatable = Admin::EffectiveWorkExperienceSummariesDatatable.new(user: user)
   = render_datatable(datatable, inline: true)
 

@@ -1,16 +1,17 @@
 -# Render this from your admin user form to assign an intern's work experience mentor
--# = render('effective/work_experience/user_fields', f: f, hint: 'Who can be a mentor')
-= f.hide_if(:outside_mentor, true) do
-  - ajax_url = (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
-  = f.select :mentor_id, current_user.class.all, ajax_url: ajax_url,
-    label: "Intern work experience mentor"
+-# = render('admin/work_experience/user_fields', f: f, hint: 'Who can be a mentor')
+- ajax_url = (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+- f.object.work_experience_outside_mentor_present = true if f.object.work_experience_outside_mentor?
 
-= f.check_box :work_experience_outside_mentor, label: "Intern work experience mentor is from another regulated profession"
+= f.hide_if(:work_experience_outside_mentor_present, true) do
+  = f.select :work_experience_mentor_id, current_user.class.all, ajax_url: ajax_url,
+    label: 'Intern work experience mentor',
+    hint: local_assigns[:hint]
 
-= f.show_if(:work_experience_outside_mentor, true) do
-  = f.has_many :work_experience_outside_mentors, f.object.work_experience_outside_mentor || f.object.work_experience_outside_mentors.build() do |fo|
-    = fo.text_field :name, label: 'Name'
-    = fo.email_field :email, label: 'Email'
-    = fo.phone_field :phone, label: 'Phone'
-    = fo.text_field :regulated_profession, label: 'Regulated Profession'
-    = fo.text_area :admin_notes, label: 'Admin Notes'
+= f.check_box :work_experience_outside_mentor_present, label: 'Intern work experience mentor is from another regulated profession'
+
+= f.show_if(:work_experience_outside_mentor_present, true) do
+  = card('Outside Mentor') do
+    -# One outside mentor is built. It's ignored unless the fields are filled in.
+    = f.has_many :work_experience_outside_mentors, label: false, add: false, remove: false, reorder: false do |fo|
+      = render('effective/work_experience_outside_mentors/fields', f: fo)

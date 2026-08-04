@@ -1,13 +1,4 @@
 EffectiveWorkExperience.setup do |config|
-  # Configure Database Tables
-  config.work_experience_categories_table_name = :work_experience_categories
-  config.work_experience_subcategories_table_name = :work_experience_subcategories
-  config.work_experience_records_table_name = :work_experience_records
-  config.work_experience_entries_table_name = :work_experience_entries
-  config.work_experience_projects_table_name = :work_experience_projects
-  config.work_experience_summaries_table_name = :work_experience_summaries
-  config.work_experience_outside_mentors_table_name = :work_experience_outside_mentors
-
   # Configure the class responsible for the work experience summary
   # Any class you provide here should be marked with effective_work_experience_summary
   # config.work_experience_summary_class_name = 'Effective::WorkExperienceSummary'

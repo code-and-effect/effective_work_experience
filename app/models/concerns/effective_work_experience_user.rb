@@ -30,8 +30,21 @@ module EffectiveWorkExperienceUser
     # The interns I am a mentor for
     has_many :work_experience_mentees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_mentor_id, inverse_of: :work_experience_mentor, dependent: :nullify
 
+    # reject_if so the blank one built by the form is ignored unless it's filled in.
     has_many :work_experience_outside_mentors, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceOutsideMentor'
-    accepts_nested_attributes_for :work_experience_outside_mentors, allow_destroy: true
+    accepts_nested_attributes_for :work_experience_outside_mentors, allow_destroy: true, reject_if: :all_blank
+
+    # Virtual. The admin form checkbox that toggles the outside mentor fields.
+    attr_accessor :work_experience_outside_mentor_present
+
+    # An intern has a mentor user or an outside mentor. Never both.
+    before_validation(if: -> { work_experience_outside_mentor_present.present? }) do
+      if EffectiveResources.truthy?(work_experience_outside_mentor_present)
+        assign_attributes(work_experience_mentor: nil)
+      else
+        work_experience_outside_mentors.each { |outside_mentor| outside_mentor.mark_for_destruction }
+      end
+    end
 
     has_many :work_experience_records, -> { order(:month) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceRecord'
     has_many :work_experience_entries, -> { order(:id) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceEntry'
