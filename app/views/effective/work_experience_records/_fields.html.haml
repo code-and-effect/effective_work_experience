@@ -1,0 +1,52 @@
+= f.hide_if(:backdated, true) do
+  .row
+    .col-lg-4
+      = f.date_field :month, hint: 'Please select the first day of the month'
+
+- if local_assigns[:namespace] == :admin
+  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. There can only be one backdated #{et(f.object)}. This allows admins to contribute hours to each category, which essentially reduces total required hours."
+
+- user = f.object.user
+- ceiling_month = Date.new(9999, 12, 31)
+
+%table.table.table-hover.table-valign-middle
+  %thead
+    %tr
+      %th
+      %th.text-center Week 1
+      %th.text-center Week 2
+      %th.text-center Week 3
+      %th.text-center Week 4
+      %th.text-center Week 5
+      %th.text-right Hours to Date
+      %th.text-right Min Requirement
+
+  - f.object.work_experience_subcategories.group_by(&:work_experience_category).each do |work_experience_category, work_experience_subcategories|
+    %tbody
+      - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) }
+      %tr{style: "background: #f6f8fa"}
+        %th{colspan: 6}= work_experience_category
+        %th.text-right= (category_hours > 0.0 ? work_experience_hours_to_s(category_hours) : '-')
+        %th.text-right
+          - if work_experience_category.minimum_hours.present?
+            #{work_experience_category.minimum_hours} hours
+
+      - work_experience_subcategories.each do |work_experience_subcategory|
+        - work_experience_entry = f.object.work_experience_entry(work_experience_subcategory: work_experience_subcategory)
+
+        = f.fields_for :work_experience_entries, work_experience_entry do |ef|
+          %tr
+            %td
+              = ef.hidden_field :work_experience_subcategory_id
+              = ef.object.work_experience_subcategory
+            %td= ef.number_text_field :week_1, label: false
+            %td= ef.number_text_field :week_2, label: false
+            %td= ef.number_text_field :week_3, label: false
+            %td= ef.number_text_field :week_4, label: false
+            %td= ef.number_text_field :week_5, label: false
+            %td.text-right
+              - hours = user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month)
+              = (hours > 0.0 ? work_experience_hours_to_s(hours) : '-')
+            %td.text-right
+              - if work_experience_subcategory.minimum_hours.present?
+                #{work_experience_subcategory.minimum_hours} hours

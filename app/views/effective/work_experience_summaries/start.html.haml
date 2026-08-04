@@ -1,0 +1,16 @@
+= render 'layout' do
+  = render 'effective/work_experience_summaries/content', resource: resource
+
+  = card do
+    = effective_form_with(model: resource, url: wizard_path(step), method: :put) do |f|
+      = f.hidden_field :id
+
+      - if f.object.mentor.blank?
+        %p You have not yet been assigned a mentor. Please contact the office to be assigned a mentor.
+      - else
+        %p Your mentor for this #{etd(f.object.class)} is #{f.object.mentor}.
+        %p Please contact the office if this is incorrect.
+
+      = render('effective/work_experience_summaries/start_fields', f: f)
+
+      = f.submit 'Save and Continue', left: true

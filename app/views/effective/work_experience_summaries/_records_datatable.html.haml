@@ -1,0 +1,2 @@
+- datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: work_experience_summary.user, work_experience_summary: work_experience_summary, skip_actions: local_assigns[:skip_actions] || false)
+= render_datatable(datatable, simple: true, inline: true)

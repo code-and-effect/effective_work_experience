@@ -1,0 +1,10 @@
+= effective_form_with(model: [:admin, work_experience_subcategory], engine: true) do |f|
+  = f.select :work_experience_category_id, Effective::WorkExperienceCategory.sorted.all
+
+  = f.text_field :title
+
+  = f.number_field :minimum_hours, hint: 'Guidance target hours for this subcategory over the intern period'
+
+  = f.article_editor :body
+
+  = effective_submit(f)

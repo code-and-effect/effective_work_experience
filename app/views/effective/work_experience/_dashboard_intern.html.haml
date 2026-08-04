@@ -1,0 +1,73 @@
+%h2 Work Experience
+
+%p Please use the following tables to track your work experience.
+
+%p
+  You can view your entire
+  = link_to("work experience summary report", effective_work_experience.work_experience_report_path(current_user))
+  at any time.
+
+%p Interns are required to submit a record for each month of their internship. Every #{EffectiveWorkExperience.summary_months} months they are required to submit a summary report.
+
+%hr
+
+%h4 Mentor
+
+- if current_user.work_experience_mentor.present?
+  %p Your mentor is #{link_to(current_user.work_experience_mentor, "mailto:#{current_user.work_experience_mentor.email}")}.
+- elsif current_user.work_experience_outside_mentor?
+  - outside_mentor = current_user.work_experience_outside_mentor
+  %p Your outside mentor is #{link_to(outside_mentor.name, "mailto:#{outside_mentor.email}")}.
+- else
+  %p You have not been assigned a mentor. Please contact us to be assigned one.
+
+%hr
+
+%h4 Monthly Records
+%p Please use the following table to track your monthly #{etsd(Effective::WorkExperienceRecord)}.
+
+.mb-2
+  = collapse("Show #{ets(Effective::WorkExperienceRecord)}") do
+    - datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: current_user)
+    = render_datatable(datatable)
+
+%p= link_to "Add a new #{etd(Effective::WorkExperienceRecord)}", effective_work_experience.new_work_experience_record_path, class: 'btn btn-primary'
+
+%hr
+
+%h4 Projects
+%p Please use the following table to track your #{etsd(Effective::WorkExperienceProject)}.
+
+.mb-2
+  = collapse("Show #{ets(Effective::WorkExperienceProject)}") do
+    - datatable = EffectiveWorkExperienceProjectsDatatable.new(self, user: current_user)
+    = render_datatable(datatable)
+
+%p= link_to "Add a new #{etd(Effective::WorkExperienceProject)}", effective_work_experience.new_work_experience_project_path, class: 'btn btn-primary'
+
+%hr
+
+%h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
+%p Every #{EffectiveWorkExperience.summary_months} months you are required to submit a summary of your work experience to be reviewed by your mentor.
+
+.mb-2
+  = collapse("Show #{ets(EffectiveWorkExperience.WorkExperienceSummary)}") do
+    - datatable = EffectiveWorkExperienceSummariesDatatable.new(self, user: current_user)
+    = render_datatable(datatable)
+
+- # In progress
+- work_experience_summary = current_user.work_experience_summaries.in_progress.first
+
+- if work_experience_summary.present? && work_experience_summary.draft?
+  %p
+    Your submission is incomplete.
+
+    %p
+      Please
+      = link_to("Continue summary", effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, class: 'btn btn-primary')
+      or you can
+      = link_to('Abandon summary', effective_work_experience.work_experience_summary_path(work_experience_summary), 'data-confirm': "Really delete #{work_experience_summary}?", 'data-method': :delete, class: 'btn btn-danger')
+      to start again.
+
+- elsif EffectiveResources.authorized?(self, :new, EffectiveWorkExperience.WorkExperienceSummary)
+  %p= link_to "Add a new #{etd(EffectiveWorkExperience.WorkExperienceSummary)}", effective_work_experience.new_work_experience_summary_path, class: 'btn btn-primary'

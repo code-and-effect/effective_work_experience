@@ -1,4 +1,15 @@
 EffectiveWorkExperience.setup do |config|
+  # Configure the class responsible for the work experience summary
+  # Any class you provide here should be marked with effective_work_experience_summary
+  # config.work_experience_summary_class_name = 'Effective::WorkExperienceSummary'
+
+  # The number of months in each work experience summary period
+  # Display only for now. Every period is one calendar quarter.
+  config.summary_months = 3
+
+  # The recommendations a mentor may make when reviewing a work experience summary
+  config.recommendations = ['Recommend Approve', 'Recommend Decline']
+
   # Layout Settings
   # Configure the Layout per controller, or all at once
   # config.layout = { application: 'application', admin: 'admin' }

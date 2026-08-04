@@ -1,0 +1,103 @@
+= card(et(work_experience_report.class)) do
+  %p Work experience report for #{work_experience_report.user}
+
+  - user = work_experience_report.user
+  - years = work_experience_report.years
+  - backdated = work_experience_report.backdated_work_experience_record
+
+  .table-responsive
+    %table.table.table-hover
+      %thead
+        %tr
+          %th
+          - if backdated.present?
+            %th.text-right Backdated
+
+          - years.each do |year|
+            %th.text-right= year
+
+          %th.text-right Total
+          %th.text-right Target
+          %th.text-center % Complete
+
+      %tbody
+        - grouped_categories = work_experience_report.work_experience_subcategories.group_by(&:work_experience_category)
+        - grouped_categories.each_with_index do |(work_experience_category, work_experience_subcategories), index|
+          - if index > 0
+            %tr
+              %td{colspan: 3 + years.length + (backdated.present? ? 1 : 0) + 1, style: 'background-color: rgba(0, 0, 0, 0.075);'}
+
+          - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(month: Time.zone.now.end_of_year, work_experience_subcategory: work_experience_subcategory) }
+          %tr
+            %th= work_experience_category
+            - if backdated.present?
+              %td.text-right
+                - category_backdated = work_experience_subcategories.sum { |work_experience_subcategory| backdated.work_experience_entry(work_experience_subcategory: work_experience_subcategory).hours.to_f }
+                = (category_backdated > 0.0 ? work_experience_hours_to_s(category_backdated) : '-')
+            - years.each do |year|
+              %td.text-right
+                - category_year_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_hours_by_year(year: year, work_experience_subcategory: work_experience_subcategory).to_f }
+                = (category_year_hours > 0.0 ? work_experience_hours_to_s(category_year_hours) : '-')
+            %td.text-right= (category_hours > 0.0 ? work_experience_hours_to_s(category_hours) : '-')
+            %th.text-right
+              - if work_experience_category.minimum_hours.present?
+                = pluralize(work_experience_category.minimum_hours, 'hour')
+            %th.text-center
+              - if work_experience_category.minimum_hours.to_i > 0
+                = number_to_percentage((category_hours / work_experience_category.minimum_hours.to_f * 100), precision: 0)
+
+          - work_experience_subcategories.each do |work_experience_subcategory|
+            - hours_to_date = user.work_experience_total_hours_to_date(month: Time.zone.now.end_of_year, work_experience_subcategory: work_experience_subcategory)
+
+            %tr
+              %td= work_experience_subcategory
+
+              - if backdated.present?
+                %td.text-right
+                  - value = backdated.work_experience_entry(work_experience_subcategory: work_experience_subcategory).hours.to_f
+                  = (value > 0.0 ? work_experience_hours_to_s(value) : '-')
+
+              - years.each do |year|
+                %td.text-right
+                  - value = user.work_experience_hours_by_year(year: year, work_experience_subcategory: work_experience_subcategory).to_f
+                  = (value > 0.0 ? work_experience_hours_to_s(value) : '-')
+
+              %td.text-right
+                - value = hours_to_date.to_f
+                = (value > 0.0 ? work_experience_hours_to_s(value) : '-')
+
+              %td.text-right
+                - if work_experience_subcategory.minimum_hours.present?
+                  = pluralize(work_experience_subcategory.minimum_hours, 'hour')
+
+              %td.text-center
+                - if work_experience_subcategory.minimum_hours.to_i > 0
+                  = number_to_percentage((hours_to_date / work_experience_subcategory.minimum_hours.to_f * 100), precision: 0)
+
+      %tfoot
+        %tr
+          %th
+          - if backdated.present?
+            %th.text-right Backdated
+          - years.each do |year|
+            %th.text-right= year
+          %th.text-right Total
+          %th.text-right Target
+          %th.text-center % Complete
+
+        %tr
+          %th
+
+          - if backdated.present?
+            %th.text-right= work_experience_hours_to_s(backdated.total_hours)
+
+          - years.each do |year|
+            %th.text-right
+              - value = user.work_experience_hours_by_year(year: year).to_f
+              = (value > 0.0 ? work_experience_hours_to_s(value) : '-')
+
+          %th.text-right
+            - value = user.work_experience_total_hours_to_date(month: Time.zone.now.end_of_year).to_f
+            = (value > 0.0 ? work_experience_hours_to_s(value) : '-')
+          %th
+          %th

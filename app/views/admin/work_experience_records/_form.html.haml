@@ -1,0 +1,12 @@
+= effective_form_with(model: [:admin, work_experience_record], engine: true) do |f|
+  = f.hidden_field :user_id
+  = f.hidden_field :user_type, value: current_user.class.name
+
+  = card(et(f.object)) do
+    - unless inline_datatable?
+      = f.select :user_id, current_user.class.all,
+      ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+
+    = render('effective/work_experience_records/fields', f: f, namespace: :admin)
+
+  = effective_submit(f)

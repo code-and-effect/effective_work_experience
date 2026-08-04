@@ -1,0 +1,94 @@
+en:
+  effective_work_experience:
+    name: 'Work Experience'
+
+  activerecord:
+    models:
+      # These ones might be app level
+      app/work_experience_summary: 'Work Experience Summary'
+
+      # These ones should stay effective
+      effective/work_experience_category: 'Work Experience Category'
+      effective/work_experience_subcategory: 'Work Experience Subcategory'
+      effective/work_experience_record: 'Work Experience Record'
+      effective/work_experience_entry: 'Work Experience Entry'
+      effective/work_experience_project: 'Work Experience Project'
+      effective/work_experience_summary: 'Work Experience Summary'
+      effective/work_experience_outside_mentor: 'Outside Mentor'
+
+    attributes:
+      effective/work_experience_category:
+        title: 'Title'
+        minimum_hours: 'Minimum Hours'
+        position: 'Position'
+
+      effective/work_experience_subcategory:
+        title: 'Title'
+        minimum_hours: 'Minimum Hours'
+        position: 'Position'
+        work_experience_category: 'Category'
+        body: 'Description'
+
+      effective/work_experience_record:
+        month: 'Month'
+        total_hours: 'Hours'
+        backdated: 'Backdated'
+        submitted_at: 'Submitted'
+        reviewed_at: 'Reviewed'
+
+      effective/work_experience_entry:
+        work_experience_subcategory: 'Subcategory'
+        week_1: 'Week 1'
+        week_2: 'Week 2'
+        week_3: 'Week 3'
+        week_4: 'Week 4'
+        week_5: 'Week 5'
+
+      effective/work_experience_project:
+        name: 'Name'
+        description: 'Description'
+        start_on: 'Start Date'
+        end_on: 'End Date'
+
+      effective/work_experience_summary:
+        user: 'Intern'
+        mentor: 'Mentor'
+        supervisor: 'Supervisor'
+        start_on: 'Start Date'
+        end_on: 'End Date'
+        total_hours: 'Hours this period'
+        total_hours_to_date: 'Total hours to date'
+        recommendation: 'Recommendation'
+        comments: 'Reviewer Comments'
+        submitted_at: 'Submitted'
+        reviewed_at: 'Reviewed'
+        approve_work_experience_summary: 'Approve Work Experience Summary'
+
+      effective/work_experience_outside_mentor:
+        name: 'Name'
+        email: 'Email'
+        phone: 'Phone'
+        regulated_profession: 'Regulated Profession'
+        admin_notes: 'Admin Notes'
+
+  # The work experience report is an ActiveModel, not an ActiveRecord
+  activemodel:
+    models:
+      effective/work_experience_report: 'Work Experience Report'
+
+    attributes:
+      effective/work_experience_report:
+        user: 'Intern'
+
+  datatables:
+    effective_work_experience_summaries_datatable: 'Work Experience Summaries'
+    effective_work_experience_summaries_review_datatable: 'Work Experience Summaries to Review'
+    effective_work_experience_records_datatable: 'Work Experience Records'
+    effective_work_experience_projects_datatable: 'Work Experience Projects'
+    effective_work_experience_reports_review_datatable: 'Work Experience Reports'
+    admin/effective_work_experience_summaries_datatable: 'Work Experience Summaries'
+    admin/effective_work_experience_records_datatable: 'Work Experience Records'
+    admin/effective_work_experience_projects_datatable: 'Work Experience Projects'
+    admin/effective_work_experience_categories_datatable: 'Work Experience Categories'
+    admin/effective_work_experience_subcategories_datatable: 'Work Experience Subcategories'
+    admin/effective_work_experience_reports_datatable: 'Work Experience Reports'

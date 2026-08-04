@@ -1,0 +1,32 @@
+= effective_form_with(model: [:admin, work_experience_summary], engine: true) do |f|
+  = f.hidden_field :user_id
+  = f.hidden_field :user_type, value: current_user.class.name
+  = f.hidden_field :mentor_type, value: current_user.class.name
+  = f.hidden_field :supervisor_type, value: current_user.class.name
+
+  - unless inline_datatable?
+    = f.select :user_id, current_user.class.all,
+    ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+
+    = f.select :mentor_id, current_user.class.all,
+    ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+
+    = f.select :supervisor_id, current_user.class.all,
+    ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+
+  = f.select :status, work_experience_summary_status_collection
+
+  -# Read only. These are serialized hashes and can't be submitted back as text.
+  = f.static_field :status_steps
+  = f.static_field :wizard_steps
+
+  = f.date_field :start_on
+  = f.date_field :end_on
+  = f.number_field :total_hours
+  = f.select :recommendation, work_experience_recommendation_collection
+  = f.text_area :comments
+  = f.datetime_field :submitted_at
+  = f.datetime_field :reviewed_at
+  = f.text_field :token
+
+  = effective_submit(f)

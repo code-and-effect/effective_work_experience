@@ -1,0 +1,65 @@
+= wizard_card(work_experience_summary) do
+  = effective_table_with(work_experience_summary) do |f|
+    = render("effective/work_experience_summaries/records_fields", f: f)
+
+  - months = work_experience_summary.months
+  - user = work_experience_summary.user
+
+  %table.table.table-hover
+    %thead
+      %tr
+        %th
+        - months.each do |month|
+          %th.text-right= month.strftime('%B %Y')
+
+        %th.text-right Hours to Date
+        %th.text-right Min Requirement
+
+    - grouped_categories = work_experience_summary.work_experience_subcategories.group_by(&:work_experience_category)
+    - grouped_categories.each_with_index do |(work_experience_category, work_experience_subcategories), index|
+      %tbody
+        - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: work_experience_summary.end_on) }
+        %tr{style: "background: #f6f8fa"}
+          %th= work_experience_category
+          - months.each do |month|
+            %td.text-right
+              - category_month_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_hours(work_experience_subcategory: work_experience_subcategory, month: month) }
+              = (category_month_hours > 0.0 ? work_experience_hours_to_s(category_month_hours) : '-')
+          %td.text-right= (category_hours > 0.0 ? work_experience_hours_to_s(category_hours) : '-')
+          %th.text-right
+            - if work_experience_category.minimum_hours.present?
+              #{work_experience_category.minimum_hours} hours
+
+        - work_experience_subcategories.each do |work_experience_subcategory|
+          %tr
+            %td= work_experience_subcategory
+
+            - months.each do |month|
+              %td.text-right
+                - hours = user.work_experience_hours(work_experience_subcategory: work_experience_subcategory, month: month)
+                = (hours > 0.0 ? work_experience_hours_to_s(hours) : '-')
+
+            %td.text-right
+              - hours = user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: work_experience_summary.end_on)
+              = (hours > 0.0 ? work_experience_hours_to_s(hours) : '-')
+
+            %td.text-right
+              - if work_experience_subcategory.minimum_hours.present?
+                #{work_experience_subcategory.minimum_hours} hours
+
+    %tfoot
+      %tr
+        %th
+        - months.each do |month|
+          %th.text-right
+            = work_experience_hours_to_s(user.work_experience_hours(month: month))
+        %th.text-right
+          = work_experience_hours_to_s(user.work_experience_total_hours_to_date(month: work_experience_summary.end_on))
+        %th
+
+      %tr
+        %th
+        - months.each do |month|
+          %th.text-right= month.strftime('%B %Y')
+        %th.text-right Hours to Date
+        %th

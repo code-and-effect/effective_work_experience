@@ -1,0 +1,28 @@
+%h2 Work Experience
+
+%p Every #{EffectiveWorkExperience.summary_months} months, interns are required to submit a summary report of their work experience for your review.
+
+%hr
+
+%h4 Mentees
+
+- if current_user.work_experience_mentees.present?
+  %p You are a mentor for the following interns: #{current_user.work_experience_mentees.map(&:to_s).sort.to_sentence}.
+- else
+  %p You are not a mentor for any interns.
+
+%hr
+
+%h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
+%p Please review the following #{etsd(EffectiveWorkExperience.WorkExperienceSummary)}:
+
+- datatable = EffectiveWorkExperienceSummariesReviewDatatable.new(self, mentor: current_user)
+= render_datatable(datatable)
+
+%hr
+
+%h4 Summary Reports
+%p View your intern's entire work experience hours.
+
+- datatable = EffectiveWorkExperienceReportsReviewDatatable.new(self, mentor: current_user)
+= render_simple_datatable(datatable)
