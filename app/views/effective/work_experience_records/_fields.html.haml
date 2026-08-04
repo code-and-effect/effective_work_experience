@@ -23,7 +23,7 @@
 
   - f.object.work_experience_subcategories.group_by(&:work_experience_category).each do |work_experience_category, work_experience_subcategories|
     %tbody
-      - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) }
+      - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user&.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) || 0.0 }
       %tr{style: "background: #f6f8fa"}
         %th{colspan: 6}= work_experience_category
         %th.text-right= (category_hours > 0.0 ? work_experience_hours_to_s(category_hours) : '-')
@@ -45,7 +45,7 @@
             %td= ef.number_text_field :week_4, label: false
             %td= ef.number_text_field :week_5, label: false
             %td.text-right
-              - hours = user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month)
+              - hours = user&.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) || 0.0
               = (hours > 0.0 ? work_experience_hours_to_s(hours) : '-')
             %td.text-right
               - if work_experience_subcategory.minimum_hours.present?

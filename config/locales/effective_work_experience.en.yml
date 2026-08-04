@@ -27,7 +27,7 @@ en:
         minimum_hours: 'Minimum Hours'
         position: 'Position'
         work_experience_category: 'Category'
-        body: 'Description'
+        body: 'Body'
 
       effective/work_experience_record:
         month: 'Month'
