@@ -30,7 +30,9 @@ module EffectiveWorkExperienceUser
     # The interns I am a mentor for
     has_many :work_experience_mentees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_mentor_id, inverse_of: :work_experience_mentor, dependent: :nullify
 
+    # There is only ever one. The has_many is for the admin form fields.
     # reject_if so the blank one built by the form is ignored unless it's filled in.
+    has_one :work_experience_outside_mentor, as: :user, class_name: 'Effective::WorkExperienceOutsideMentor'
     has_many :work_experience_outside_mentors, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceOutsideMentor'
     accepts_nested_attributes_for :work_experience_outside_mentors, allow_destroy: true, reject_if: :all_blank
 
@@ -128,10 +130,6 @@ module EffectiveWorkExperienceUser
     end
 
     hours.round(2)
-  end
-
-  def work_experience_outside_mentor
-    work_experience_outside_mentors.first
   end
 
 end
