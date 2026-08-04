@@ -1,0 +1,3 @@
+module EffectiveWorkExperienceHelper
+
+end
