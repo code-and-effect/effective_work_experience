@@ -66,7 +66,7 @@ module EffectiveWorkExperienceUser
   end
 
   def work_experience_intern?
-    return true if try(:intern?)
+    return true if try(:intern?) || try(:pre_intern?)
     work_experience_records.present? || work_experience_summaries.present?
   end
 

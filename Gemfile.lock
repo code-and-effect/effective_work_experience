@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    effective_work_experience (0.0.1)
+    effective_work_experience (0.0.2)
       effective_bootstrap
       effective_datatables (>= 4.0.0)
       effective_resources
@@ -435,7 +435,7 @@ CHECKSUMS
   effective_email_templates (1.10.2) sha256=d5d2446f20258ca6c76208843ad1f90551e6c62d524abf038b8729bf4c43e95a
   effective_resources (2.37.6) sha256=860a266111f6f3964465d9274c8aa0e76689e5d811a9c5b60e632ae0505af322
   effective_test_bot (1.7.9) sha256=8f025b2acf099fb96e500dd6157e1a03ad9ad85b2d52ca080ee3c98b73a84506
-  effective_work_experience (0.0.1)
+  effective_work_experience (0.0.2)
   erb (6.0.6) sha256=a9b24986700f5bf127c4f297c5403c3ca41b83b0a316c0cd09a096b56e644ae5
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
   execjs (2.10.1) sha256=abe0ae028467eb8e30c10814eb934d07876a691aae7e803d813b7ce5a75e73f1
