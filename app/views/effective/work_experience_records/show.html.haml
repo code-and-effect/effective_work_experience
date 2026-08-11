@@ -1,0 +1,14 @@
+- resource = (@_effective_resource || Effective::Resource.new(controller_path))
+- @resource = instance_variable_get('@' + resource.name) if resource.name
+
+- if @resource
+  - content_for :resource_buttons do
+    .resource-buttons
+      = render_resource_buttons(@resource, show: false)
+
+  = render_resource_partial(@resource)
+
+.my-4
+
+.form-actions
+  = link_to 'Return to Dashboard', return_to_dashboard_path, class: 'btn btn-lg btn-primary btn-block'
