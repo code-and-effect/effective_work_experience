@@ -134,6 +134,24 @@ module EffectiveWorkExperienceSummary
       validates :approve_work_experience_summary, acceptance: true
       validates :recommendation, presence: true
     end
+
+    def can_visit_step?(current_step)
+      return false if current_user == user && intern_steps.exclude?(current_step)
+      return false if current_user == mentor && mentor_steps.exclude?(current_step)
+
+      # Once submitted, the intern cannot go back and submit again
+      if was_submitted?
+        return false if [:start, :records, :projects, :submit].include?(current_step)
+      end
+
+      # Once reviewed, the mentor can go back and review again
+      if was_reviewed?
+        return [:review, :reviewed].include?(current_step)
+      end
+
+      can_revisit_completed_steps(current_step)
+    end
+
   end
 
   def to_s
@@ -172,22 +190,6 @@ module EffectiveWorkExperienceSummary
     mentor.present? || user.try(:work_experience_outside_mentor?).present?
   end
 
-  def can_visit_step?(current_step)
-    return false if current_user == user && intern_steps.exclude?(current_step)
-    return false if current_user == mentor && mentor_steps.exclude?(current_step)
-
-    # Once submitted, the intern cannot go back and submit again
-    if was_submitted?
-      return false if [:start, :records, :projects, :submit].include?(current_step)
-    end
-
-    # Once reviewed, the mentor can go back and review again
-    if was_reviewed?
-      return [:review, :reviewed].include?(current_step)
-    end
-
-    can_revisit_completed_steps(current_step)
-  end
 
   def total_hours_to_date
     user.work_experience_total_hours_to_date(month: end_on)
