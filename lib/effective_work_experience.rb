@@ -24,7 +24,7 @@ module EffectiveWorkExperience
 
   # The only swappable class. Mark yours with effective_work_experience_summary
   def self.WorkExperienceSummary
-    work_experience_summary_class_name&.constantize || Effective::WorkExperienceSummary
+    klass(:work_experience_summary)
   end
 
   def self.mailer_class
