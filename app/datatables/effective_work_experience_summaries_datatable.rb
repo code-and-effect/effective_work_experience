@@ -32,7 +32,7 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
 
     actions_col(show: false) do |work_experience_summary|
       if work_experience_summary.draft?
-        dropdown_link_to('Continue', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false)
+        dropdown_link_to('Continue', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
         dropdown_link_to('Delete', effective_work_experience.work_experience_summary_path(work_experience_summary), 'data-confirm': "Really delete #{work_experience_summary}?", 'data-method': :delete)
       else
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
