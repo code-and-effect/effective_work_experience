@@ -28,7 +28,7 @@
 
 .mb-2
   = collapse("Show #{ets(Effective::WorkExperienceRecord)}") do
-    - datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: current_user)
+    - datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: current_user, namespace: :effective)
     = render_datatable(datatable)
 
 %p= link_to "Add a new #{etd(Effective::WorkExperienceRecord)}", effective_work_experience.new_work_experience_record_path, class: 'btn btn-primary'
@@ -40,7 +40,7 @@
 
 .mb-2
   = collapse("Show #{ets(Effective::WorkExperienceProject)}") do
-    - datatable = EffectiveWorkExperienceProjectsDatatable.new(self, user: current_user)
+    - datatable = EffectiveWorkExperienceProjectsDatatable.new(self, user: current_user, namespace: :effective)
     = render_datatable(datatable)
 
 %p= link_to "Add a new #{etd(Effective::WorkExperienceProject)}", effective_work_experience.new_work_experience_project_path, class: 'btn btn-primary'
