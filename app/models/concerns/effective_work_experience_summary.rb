@@ -227,6 +227,9 @@ module EffectiveWorkExperienceSummary
   def submit!
     raise('already submitted') if was_submitted?
 
+    wizard_steps[:start] ||= Time.zone.now
+    wizard_steps[:records] ||= Time.zone.now
+    wizard_steps[:projects] ||= Time.zone.now
     wizard_steps[:submit] ||= Time.zone.now
     wizard_steps[:submitted] = Time.zone.now
 
