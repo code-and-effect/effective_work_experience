@@ -1,4 +1,5 @@
-# Work experience summaries for an explicitly assigned mentor or supervisor
+# Mentor & supervisor dashboard only.
+# Work experience summaries assigned to the current user as mentor or supervisor
 class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
   datatable do
     order :created_at
@@ -36,13 +37,9 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
     end
   end
 
-  # Either assignment matches. Automatic belongs_to filtering would combine them with AND.
-  collection(apply_belongs_to: false) do
+  collection do
     scope = EffectiveWorkExperience.WorkExperienceSummary.deep.where.not(status: :draft)
-    summaries = scope.none
-    summaries = summaries.or(scope.where(mentor_id: attributes[:mentor_id], mentor_type: attributes[:mentor_type])) if attributes[:mentor_id].present? && attributes[:mentor_type].present?
-    summaries = summaries.or(scope.where(supervisor_id: attributes[:supervisor_id], supervisor_type: attributes[:supervisor_type])) if attributes[:supervisor_id].present? && attributes[:supervisor_type].present?
-    summaries
+    scope.where(mentor: current_user).or(scope.where(supervisor: current_user))
   end
 
 end

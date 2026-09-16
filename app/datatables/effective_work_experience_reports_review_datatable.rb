@@ -1,3 +1,4 @@
+# Mentor & supervisor dashboard only.
 # Work experience reports for the current user's mentees and supervisees
 class EffectiveWorkExperienceReportsReviewDatatable < Effective::Datatable
   datatable do

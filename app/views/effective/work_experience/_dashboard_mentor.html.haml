@@ -23,7 +23,7 @@
 %h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
 %p Please review the following #{etsd(EffectiveWorkExperience.WorkExperienceSummary)}:
 
-- datatable = EffectiveWorkExperienceSummariesReviewDatatable.new(self, mentor: current_user, supervisor: current_user)
+- datatable = EffectiveWorkExperienceSummariesReviewDatatable.new(self)
 = render_datatable(datatable)
 
 %hr
