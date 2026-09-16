@@ -6,7 +6,7 @@ module Effective
 
     resource_scope -> {
       collection = EffectiveWorkExperience.WorkExperienceSummary.deep
-      collection.where(user: current_user).or(collection.where(mentor: current_user))
+      collection.where(user: current_user).or(collection.where(mentor: current_user)).or(collection.where(supervisor: current_user))
     }
 
     def build_wizard_resource

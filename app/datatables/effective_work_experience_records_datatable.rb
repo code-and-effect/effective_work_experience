@@ -6,6 +6,7 @@ class EffectiveWorkExperienceRecordsDatatable < Effective::Datatable
     col :updated_at, visible: false
     col :created_at, visible: false
     col :id, visible: false
+    col :user, visible: false
 
     col(:month) do |work_experience_record|
       work_experience_record.month&.strftime('%F') || 'Backdated'
@@ -43,7 +44,6 @@ class EffectiveWorkExperienceRecordsDatatable < Effective::Datatable
 
   collection do
     scope = Effective::WorkExperienceRecord.deep.all
-    scope = scope.where(user_id: attributes[:user_id], user_type: attributes[:user_type]) if attributes[:user_id].present?
 
     if work_experience_summary.present?
       scope = scope.during(work_experience_summary.months)

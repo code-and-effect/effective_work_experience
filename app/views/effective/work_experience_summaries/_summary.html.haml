@@ -4,7 +4,7 @@
 
   %tbody
     %tr
-      %th Intern
+      %th= work_experience_intern_label
       %td
         = render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: user)
 
@@ -26,7 +26,7 @@
 
     - if work_experience_summary.mentor.present?
       %tr
-        %th Mentor
+        %th= work_experience_mentor_label
         %td
           = render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.mentor)
 
@@ -37,12 +37,12 @@
 
     - if work_experience_summary.supervisor.present?
       %tr
-        %th Supervisor
+        %th= work_experience_supervisor_label
         %td= render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.supervisor)
 
     - if (outside_mentor = user.try(:work_experience_outside_mentor)).present?
       %tr
-        %th Outside Mentor
+        %th Outside #{work_experience_mentor_label}
         %td
           = outside_mentor.name
           %div= outside_mentor.regulated_profession

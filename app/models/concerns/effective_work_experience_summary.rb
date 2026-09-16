@@ -95,8 +95,7 @@ module EffectiveWorkExperienceSummary
 
     before_validation do
       # Only assign from the user when they have the association. Otherwise leave whatever was assigned.
-      assign_attributes(mentor: user.work_experience_mentor) if user.respond_to?(:work_experience_mentor)
-      assign_attributes(supervisor: user.supervisor) if user.respond_to?(:supervisor)
+      assign_attributes(mentor: user.try(:work_experience_mentor), supervisor: user.try(:work_experience_supervisor))
     end
 
     before_validation do

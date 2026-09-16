@@ -1,4 +1,4 @@
-# The mentor's work experience summaries to review
+# Work experience summaries for an explicitly assigned mentor or supervisor
 class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
   datatable do
     order :created_at
@@ -25,7 +25,9 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
     col :comments, visible: false
 
     actions_col(show: false) do |work_experience_summary|
-      if work_experience_summary.submitted?
+      if !EffectiveResources.authorized?(self, :update, work_experience_summary)
+        dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
+      elsif work_experience_summary.submitted?
         dropdown_link_to('Start Review', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
       else
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
@@ -34,10 +36,13 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
     end
   end
 
-  collection do
+  # Either assignment matches. Automatic belongs_to filtering would combine them with AND.
+  collection(apply_belongs_to: false) do
     scope = EffectiveWorkExperience.WorkExperienceSummary.deep.where.not(status: :draft)
-    scope = scope.where(mentor_id: attributes[:mentor_id], mentor_type: attributes[:mentor_type]) if attributes[:mentor_id].present?
-    scope
+    summaries = scope.none
+    summaries = summaries.or(scope.where(mentor_id: attributes[:mentor_id], mentor_type: attributes[:mentor_type])) if attributes[:mentor_id].present? && attributes[:mentor_type].present?
+    summaries = summaries.or(scope.where(supervisor_id: attributes[:supervisor_id], supervisor_type: attributes[:supervisor_type])) if attributes[:supervisor_id].present? && attributes[:supervisor_type].present?
+    summaries
   end
 
 end

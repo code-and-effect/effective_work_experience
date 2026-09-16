@@ -17,6 +17,10 @@ module Effective
       user&.try(:work_experience_mentor)
     end
 
+    def supervisor
+      user&.try(:work_experience_supervisor)
+    end
+
     def backdated_work_experience_record
       work_experience_records.find(&:backdated?)
     end

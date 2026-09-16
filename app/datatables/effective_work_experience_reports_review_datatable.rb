@@ -1,4 +1,4 @@
-# The work experience reports of the interns I am a mentor for
+# Work experience reports for the current user's mentees and supervisees
 class EffectiveWorkExperienceReportsReviewDatatable < Effective::Datatable
   datatable do
     col :user, label: 'Intern'
@@ -9,7 +9,7 @@ class EffectiveWorkExperienceReportsReviewDatatable < Effective::Datatable
   end
 
   collection do
-    current_user.work_experience_mentees.map { |user| [user, user] }
+    (current_user.work_experience_mentees + current_user.work_experience_supervisees).uniq.map { |user| [user, user] }
   end
 
 end

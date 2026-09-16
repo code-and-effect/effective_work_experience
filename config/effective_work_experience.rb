@@ -3,6 +3,9 @@ EffectiveWorkExperience.setup do |config|
   # Any class you provide here should be marked with effective_work_experience_summary
   # config.work_experience_summary_class_name = 'Effective::WorkExperienceSummary'
 
+  # How work experience is recorded: :projects_and_entries or :activities
+  config.mode = :projects_and_entries
+
   # The number of months in each work experience summary period
   # Display only for now. Every period is one calendar quarter.
   config.summary_months = 3
