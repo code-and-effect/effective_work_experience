@@ -1,4 +1,4 @@
-%h2 Work Experience
+%h2= work_experience_name_label
 
 %p Please use the following tables to track your work experience.
 
@@ -11,15 +11,19 @@
 
 %hr
 
-%h4 Mentor
+%h4= work_experience_mentor_label
 
 - if current_user.work_experience_mentor.present?
-  %p Your mentor is #{link_to(current_user.work_experience_mentor, "mailto:#{current_user.work_experience_mentor.email}")}.
+  %p Your #{work_experience_mentor_label.downcase} is #{link_to(current_user.work_experience_mentor, "mailto:#{current_user.work_experience_mentor.email}")}.
 - elsif current_user.work_experience_outside_mentor?
   - outside_mentor = current_user.work_experience_outside_mentor
-  %p Your outside mentor is #{link_to(outside_mentor.name, "mailto:#{outside_mentor.email}")}.
+  %p Your outside #{work_experience_mentor_label.downcase} is #{link_to(outside_mentor.name, "mailto:#{outside_mentor.email}")}.
 - else
-  %p You have not been assigned a mentor. Please contact us to be assigned one.
+  %p No #{work_experience_mentor_label.downcase} has been assigned. Please contact us to be assigned one.
+
+- if current_user.work_experience_supervisor.present?
+  %h4= work_experience_supervisor_label
+  %p Your #{work_experience_supervisor_label.downcase} is #{mail_to(current_user.work_experience_supervisor.email, current_user.work_experience_supervisor.to_s)}.
 
 %hr
 
@@ -48,7 +52,7 @@
 %hr
 
 %h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
-%p Every #{EffectiveWorkExperience.summary_months} months you are required to submit a summary of your work experience to be reviewed by your mentor.
+%p Every #{EffectiveWorkExperience.summary_months} months you are required to submit a summary of your work experience to be reviewed by your #{work_experience_mentor_label.downcase}.
 
 .mb-2
   = collapse("Show #{ets(EffectiveWorkExperience.WorkExperienceSummary)}") do

@@ -1,22 +1,29 @@
-%h2 Work Experience
+%h2= work_experience_name_label
 
 %p Every #{EffectiveWorkExperience.summary_months} months, interns are required to submit a summary report of their work experience for your review.
 
 %hr
 
-%h4 Mentees
+%h4= work_experience_mentor_label
 
 - if current_user.work_experience_mentees.present?
-  %p You are a mentor for the following interns: #{current_user.work_experience_mentees.map(&:to_s).sort.to_sentence}.
+  %p You are #{work_experience_mentor_label.downcase} to the following interns: #{current_user.work_experience_mentees.map(&:to_s).sort.to_sentence}.
 - else
-  %p You are not a mentor for any interns.
+  %p You have no assigned mentees.
+
+- if current_user.work_experience_supervisor?
+  %h4= work_experience_supervisor_label
+  - if current_user.work_experience_supervisees.present?
+    %p You are #{work_experience_supervisor_label.downcase} to the following interns: #{current_user.work_experience_supervisees.map(&:to_s).sort.to_sentence}.
+  - else
+    %p You have no currently assigned supervisees.
 
 %hr
 
 %h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
 %p Please review the following #{etsd(EffectiveWorkExperience.WorkExperienceSummary)}:
 
-- datatable = EffectiveWorkExperienceSummariesReviewDatatable.new(self, mentor: current_user)
+- datatable = EffectiveWorkExperienceSummariesReviewDatatable.new(self, mentor: current_user, supervisor: current_user)
 = render_datatable(datatable)
 
 %hr
@@ -24,5 +31,5 @@
 %h4 Summary Reports
 %p View your intern's entire work experience hours.
 
-- datatable = EffectiveWorkExperienceReportsReviewDatatable.new(self, mentor: current_user)
+- datatable = EffectiveWorkExperienceReportsReviewDatatable.new(self)
 = render_simple_datatable(datatable)
