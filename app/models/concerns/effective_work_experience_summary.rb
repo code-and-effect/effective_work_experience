@@ -152,21 +152,35 @@ module EffectiveWorkExperienceSummary
       validates :supervisor_recommendation, presence: true
     end
 
-    def can_visit_step?(current_step)
-      return false if current_user == user && intern_steps.exclude?(current_step)
-      return false if current_user == mentor && mentor_steps.exclude?(current_step)
-
-      # Once submitted, the intern cannot go back and submit again
-      if was_submitted?
-        return false if [:start, :records, :projects, :submit].include?(current_step)
+    def can_visit_step?(step)
+      if current_user_intern? && was_submitted?
+        return [
+          :submitted,
+          (:reviewed if has_completed_step?(:reviewed)),
+          (:reviewed_two if has_completed_step?(:reviewed_two))
+        ].include?(step)
       end
 
-      # Once reviewed, the mentor can go back and review again
-      if was_reviewed?
-        return [:review, :reviewed].include?(current_step)
+      if current_user_intern?
+        return false unless intern_steps.include?(step)
+        return can_revisit_completed_steps(step)
       end
 
-      can_revisit_completed_steps(current_step)
+      if current_user_mentor?
+        return false unless was_submitted?
+        return false unless mentor_steps.include?(step)
+        return false if step == :reviewed && !has_completed_step?(:review)
+        return true
+      end
+
+      if current_user_supervisor?
+        return false unless was_submitted?
+        return false unless supervisor_steps.include?(step)
+        return false if step == :reviewed_two && !has_completed_step?(:review_two)
+        return true
+      end
+
+      false
     end
 
   end
@@ -177,7 +191,7 @@ module EffectiveWorkExperienceSummary
 
   # The intern completes the first half of the wizard, the mentor completes the second half
   def intern_steps
-    [:start, :records, :projects, :submit, :submitted, :reviewed]
+    [:start, :records, :projects, :submit, :submitted, :reviewed, :reviewed_two]
   end
 
   def mentor_steps
@@ -188,8 +202,28 @@ module EffectiveWorkExperienceSummary
     [:submitted, :review_two, :reviewed_two]
   end
 
+  def current_user_intern?
+    current_user.present? && (user == current_user)
+  end
+
+  def current_user_mentor?
+    current_user.present? && (mentor == current_user || user.work_experience_mentor == current_user)
+  end
+
+  def current_user_supervisor?
+    current_user.present? && (supervisor == current_user || user.work_experience_supervisor == current_user)
+  end
+
   def recommendations
     Array(EffectiveWorkExperience.recommendations)
+  end
+
+  def reviewed_by?(user)
+    return false if user.blank?
+    return mentor_recommendation.present? if mentor == user
+    return supervisor_recommendation.present? if supervisor == user
+
+    false
   end
 
   def summary_months

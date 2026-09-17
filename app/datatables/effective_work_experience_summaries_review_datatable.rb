@@ -31,11 +31,11 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
     actions_col(show: false) do |work_experience_summary|
       if !EffectiveResources.authorized?(self, :update, work_experience_summary)
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
-      elsif work_experience_summary.submitted?
+      elsif !work_experience_summary.reviewed_by?(current_user)
         dropdown_link_to('Start Review', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
       else
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
-        dropdown_link_to('Review again', effective_work_experience.work_experience_summary_build_path(work_experience_summary, :review), 'data-turbolinks' => false, 'data-turbo' => false)
+        dropdown_link_to('Review again', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
       end
     end
   end
