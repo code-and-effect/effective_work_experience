@@ -28,6 +28,39 @@ class WorkExperienceTest < ActiveSupport::TestCase
     assert_equal Time.zone.now.beginning_of_month.to_date, work_experience_record.month
   end
 
+  test 'monthly grid records require a unique month for each intern' do
+    record = create_work_experience_record!
+    duplicate = build_work_experience_record(user: record.user, month: record.month)
+
+    refute duplicate.valid?
+    assert duplicate.errors[:month].present?
+  end
+
+  test 'hours log records preserve entered hours and allow multiple records in a month' do
+    original_mode = EffectiveWorkExperience.mode
+    EffectiveWorkExperience.mode = :hours_log
+    user = build_intern()
+    date = Date.current
+
+    first = user.work_experience_records.create!(date: date, description: 'Site planning', total_hours: 2.5)
+    second = user.work_experience_records.create!(date: date, description: 'Design review', total_hours: 1.25)
+
+    assert_equal date, first.reload.date
+    assert_equal 'Site planning', first.description
+    assert_equal date.beginning_of_month, first.month
+    assert_equal 2.5, first.total_hours
+    assert_equal 1.25, second.reload.total_hours
+    assert_equal 3.75, user.work_experience_hours(month: date.beginning_of_month)
+    assert_equal 3.75, user.work_experience_hours_by_year(year: date.year)
+    assert_equal 3.75, user.work_experience_total_hours_to_date(month: date.beginning_of_month)
+
+    summary = EffectiveWorkExperience.WorkExperienceSummary.new(user: user, start_on: date)
+    assert summary.valid?, summary.errors.full_messages.to_sentence
+    assert_equal 3.75, summary.total_hours
+  ensure
+    EffectiveWorkExperience.mode = original_mode
+  end
+
   test 'work experience summary' do
     work_experience_summary = create_work_experience_summary!()
 

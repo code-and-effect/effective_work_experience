@@ -35,6 +35,8 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
       t.integer :user_id
       t.string :user_type
 
+      t.text :description
+      t.date :date
       t.date :month
       t.decimal :total_hours, precision: 10, scale: 2
 
@@ -62,20 +64,6 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
       t.decimal :week_3, precision: 10, scale: 2
       t.decimal :week_4, precision: 10, scale: 2
       t.decimal :week_5, precision: 10, scale: 2
-
-      t.timestamps
-    end
-
-    create_table :work_experience_activities, if_not_exists: true do |t|
-      t.integer :user_id
-      t.string :user_type
-
-      t.integer :work_experience_subcategory_id
-      t.integer :work_experience_summary_id
-
-      t.date :date
-      t.text :description
-      t.decimal :hours, precision: 10, scale: 2
 
       t.timestamps
     end

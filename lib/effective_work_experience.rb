@@ -10,7 +10,7 @@ module EffectiveWorkExperience
       :work_experience_categories_table_name, :work_experience_subcategories_table_name,
       :work_experience_records_table_name, :work_experience_entries_table_name,
       :work_experience_projects_table_name, :work_experience_summaries_table_name,
-      :work_experience_outside_mentors_table_name, :work_experience_activities_table_name,
+      :work_experience_outside_mentors_table_name,
 
       :work_experience_summary_class_name,
 
@@ -24,7 +24,7 @@ module EffectiveWorkExperience
 
   def self.mode
     mode = config[:mode]
-    raise ArgumentError, 'work experience mode must be :activities or :projects_and_entries' unless [:activities, :projects_and_entries].include?(mode)
+    raise ArgumentError, 'work experience mode must be :hours_log or :monthly_grid' unless [:hours_log, :monthly_grid].include?(mode)
     mode
   end
 

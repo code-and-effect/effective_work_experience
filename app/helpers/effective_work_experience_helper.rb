@@ -28,14 +28,6 @@ module EffectiveWorkExperienceHelper
     ets(EffectiveWorkExperience.WorkExperienceSummary, :supervisor)
   end
 
-  def work_experience_activity_label
-    et(Effective::WorkExperienceActivity)
-  end
-
-  def work_experience_activities_label
-    ets(Effective::WorkExperienceActivity)
-  end
-
   def work_experience_record_label
     et(Effective::WorkExperienceRecord)
   end

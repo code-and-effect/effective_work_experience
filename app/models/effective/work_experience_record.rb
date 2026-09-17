@@ -1,4 +1,4 @@
-# A monthly record of work experience
+# A monthly grid or individual hours log record of work experience
 module Effective
   class WorkExperienceRecord < ActiveRecord::Base
     self.table_name = (EffectiveWorkExperience.work_experience_records_table_name || :work_experience_records).to_s
@@ -18,6 +18,8 @@ module Effective
     )
 
     effective_resource do
+      description           :text
+      date                  :date
       month                 :date       # The 1st day of the month of the work experience
       total_hours           :decimal    # The total number of hours worked for the month
 
@@ -34,7 +36,7 @@ module Effective
       timestamps
     end
 
-    before_validation do
+    before_validation(if: -> { EffectiveWorkExperience.mode == :monthly_grid }) do
       assign_attributes(total_hours: work_experience_entries.sum(&:hours).round(2))
     end
 
@@ -46,7 +48,7 @@ module Effective
     validates :month, presence: true, unless: -> { backdated }
     validates :month, absence: true, if: -> { backdated }
 
-    validates :month, uniqueness: { scope: [:user_id, :user_type] }
+    validates :month, uniqueness: { scope: [:user_id, :user_type] }, if: -> { EffectiveWorkExperience.mode == :monthly_grid }
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0 }
 
     validate(if: -> { month.present? }) do

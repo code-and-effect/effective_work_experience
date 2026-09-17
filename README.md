@@ -42,7 +42,7 @@ rake db:migrate
 
 - `Effective::WorkExperienceCategory` — the top level grouping, with a minimum hours target
 - `Effective::WorkExperienceSubcategory` — belongs to a category. Hours are recorded against these.
-- `Effective::WorkExperienceRecord` — one intern's hours for one month
+- `Effective::WorkExperienceRecord` — an intern's monthly grid or individual hours log
 - `Effective::WorkExperienceEntry` — one row of a record. Five weeks of hours for one subcategory.
 - `Effective::WorkExperienceProject` — one project an intern worked on
 - `Effective::WorkExperienceSummary` — one period, submitted by the intern and reviewed by their mentor
@@ -162,8 +162,8 @@ All configuration options are documented in the `config/initializers/effective_w
 
 ### Labels
 
-The helpers follow the CPD naming convention: `work_experience_activity_label` /
-`work_experience_activities_label`, with equivalent singular/plural helpers for records, entries,
+The helpers follow the CPD naming convention: `work_experience_record_label` /
+`work_experience_records_label`, with equivalent singular/plural helpers for entries,
 projects, summaries, reports, categories, subcategories, interns, mentors, and supervisors.
 `work_experience_name_label` returns the module name. They use the existing `et` / `ets` helpers
 and model/attribute translations. To call mentors "Advisors", translate the summary's `mentor`
