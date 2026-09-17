@@ -30,7 +30,6 @@ module EffectiveWorkExperienceUser
 
     # The interns I am a mentor for
     has_many :work_experience_mentees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_mentor_id, inverse_of: :work_experience_mentor, dependent: :nullify
-
     has_many :work_experience_supervisees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_supervisor_id, inverse_of: :work_experience_supervisor, dependent: :nullify
 
     # There is only ever one. The has_many is for the admin form fields.
@@ -51,14 +50,9 @@ module EffectiveWorkExperienceUser
       end
     end
 
-    # All modes
     has_many :work_experience_records, -> { order(:month) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceRecord'
-
-    # Monthly grid mode
     has_many :work_experience_entries, -> { order(:id) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceEntry'
     has_many :work_experience_projects, -> { order(:start_on) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceProject'
-
-    # All modes
     has_many :work_experience_summaries, -> { order(:start_on) }, as: :user, dependent: :destroy, class_name: EffectiveWorkExperience.class_name(name, :work_experience_summaries)
 
     # I'm the mentor for these work experience summaries
@@ -75,7 +69,7 @@ module EffectiveWorkExperienceUser
   end
 
   def work_experience_intern?
-    return true if try(:intern?) || try(:pre_intern?)
+    return true if try(:intern?) || try(:pre_intern?) || try(:any_intern?)
     work_experience_records.present? || work_experience_summaries.present?
   end
 
@@ -98,8 +92,10 @@ module EffectiveWorkExperienceUser
 
   # One subcategory and month
   def work_experience_hours(month:, work_experience_subcategory: nil)
-    if EffectiveWorkExperience.mode == :hours_log && work_experience_subcategory.blank?
-      return work_experience_records.select { |record| record.month == month }.sum { |record| record.total_hours.to_f }.round(2)
+    if EffectiveWorkExperience.mode == :hours_log
+      records = work_experience_records.select { |record| record.month == month }
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
     end
 
     work_experience_record = work_experience_records.find { |record| record.month == month }
@@ -119,10 +115,14 @@ module EffectiveWorkExperienceUser
     work_experience_records_in_year = work_experience_records.select { |record| record.month.present? && record.month.year == year }
     return 0.0 if work_experience_records_in_year.blank?
 
+    if EffectiveWorkExperience.mode == :hours_log
+      records = work_experience_records_in_year
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
+    end
+
     hours = if work_experience_subcategory.present?
       work_experience_records_in_year.sum { |record| record.work_experience_entry(work_experience_subcategory: work_experience_subcategory).hours }
-    elsif EffectiveWorkExperience.mode == :hours_log
-      work_experience_records_in_year.sum { |record| record.total_hours.to_f }
     else
       work_experience_records_in_year.sum { |record| record.work_experience_entries.sum { |work_experience_entry| work_experience_entry.hours } }
     end
@@ -140,11 +140,15 @@ module EffectiveWorkExperienceUser
 
     return 0.0 if work_experience_records_to_date.blank?
 
+    if EffectiveWorkExperience.mode == :hours_log
+      records = work_experience_records_to_date
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
+    end
+
     hours = work_experience_records_to_date.sum do |work_experience_record|
       if work_experience_subcategory.present?
         work_experience_record.work_experience_entry(work_experience_subcategory: work_experience_subcategory).hours
-      elsif EffectiveWorkExperience.mode == :hours_log
-        work_experience_record.total_hours.to_f
       else
         work_experience_record.work_experience_entries.sum { |work_experience_entry| work_experience_entry.hours }
       end
