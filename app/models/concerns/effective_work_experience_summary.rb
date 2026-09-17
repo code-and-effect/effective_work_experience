@@ -154,11 +154,9 @@ module EffectiveWorkExperienceSummary
 
     def can_visit_step?(step)
       if current_user_intern? && was_submitted?
-        return [
-          :submitted,
-          (:reviewed if has_completed_step?(:reviewed)),
-          (:reviewed_two if has_completed_step?(:reviewed_two))
-        ].include?(step)
+        return step == :reviewed_two if has_completed_step?(:reviewed_two)
+        return step == :reviewed if has_completed_step?(:reviewed)
+        return step == :submitted
       end
 
       if current_user_intern?
