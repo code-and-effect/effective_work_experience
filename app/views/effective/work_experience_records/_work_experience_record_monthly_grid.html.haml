@@ -24,7 +24,7 @@
         %th.text-right Hours to Date
         %th.text-right Min Requirement
 
-    - work_experience_record.work_experience_subcategories.group_by(&:work_experience_category).each do |work_experience_category, work_experience_subcategories|
+    - work_experience_subcategories_collection.group_by(&:work_experience_category).each do |work_experience_category, work_experience_subcategories|
       %tbody
         - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) }
         %tr

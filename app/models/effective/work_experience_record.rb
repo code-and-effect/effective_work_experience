@@ -77,10 +77,6 @@ module Effective
       description.presence || month&.strftime('%B %Y') || model_name.human
     end
 
-    def work_experience_subcategories
-      Effective::WorkExperienceSubcategory.all.sorted
-    end
-
     # Find or build
     def work_experience_entry(work_experience_subcategory:)
       entry = work_experience_entries.find { |work_experience_entry| work_experience_entry.work_experience_subcategory_id == work_experience_subcategory.id }

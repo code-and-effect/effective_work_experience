@@ -15,7 +15,7 @@ class WorkExperienceTest < ActiveSupport::TestCase
     work_experience_record = create_work_experience_record!
 
     subcategories = Effective::WorkExperienceSubcategory.count
-    assert_equal subcategories, work_experience_record.work_experience_subcategories.count
+    assert_equal subcategories, work_experience_record.work_experience_entries.count
     assert work_experience_record.work_experience_entries.all? { |work_experience_entry| work_experience_entry.hours == 15 }
     assert_equal (15 * subcategories), work_experience_record.total_hours
   end

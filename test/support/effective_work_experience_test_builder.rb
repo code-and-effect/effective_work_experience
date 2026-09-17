@@ -53,7 +53,7 @@ module EffectiveWorkExperienceTestBuilder
 
     work_experience_record = Effective::WorkExperienceRecord.new(user: user, month: month)
 
-    work_experience_record.work_experience_subcategories.each do |work_experience_subcategory|
+    Effective::WorkExperienceSubcategory.all.sorted.each do |work_experience_subcategory|
       work_experience_entry = work_experience_record.work_experience_entry(work_experience_subcategory: work_experience_subcategory)
       work_experience_entry.assign_attributes(week_1: 1, week_2: 2, week_3: 3, week_4: 4, week_5: 5)
     end
