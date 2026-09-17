@@ -27,29 +27,31 @@
 
 %hr
 
-%h4 Monthly Records
-%p Please use the following table to track your monthly #{etsd(Effective::WorkExperienceRecord)}.
+- if EffectiveResources.authorized?(self, :index, Effective::WorkExperienceRecord)
+  %h4 Monthly Records
+  %p Please use the following table to track your monthly #{etsd(Effective::WorkExperienceRecord)}.
 
-.mb-2
-  = collapse("Show #{ets(Effective::WorkExperienceRecord)}") do
-    - datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: current_user, namespace: :effective)
-    = render_datatable(datatable)
+  .mb-2
+    = collapse("Show #{ets(Effective::WorkExperienceRecord)}") do
+      - datatable = EffectiveWorkExperienceRecordsDatatable.new(self, user: current_user, namespace: :effective)
+      = render_datatable(datatable)
 
-%p= link_to "Add a new #{etd(Effective::WorkExperienceRecord)}", effective_work_experience.new_work_experience_record_path, class: 'btn btn-primary'
+  %p= link_to "Add a new #{etd(Effective::WorkExperienceRecord)}", effective_work_experience.new_work_experience_record_path, class: 'btn btn-primary'
 
-%hr
+  %hr
 
-%h4 Projects
-%p Please use the following table to track your #{etsd(Effective::WorkExperienceProject)}.
+- if EffectiveResources.authorized?(self, :index, Effective::WorkExperienceProject)
+  %h4 Projects
+  %p Please use the following table to track your #{etsd(Effective::WorkExperienceProject)}.
 
-.mb-2
-  = collapse("Show #{ets(Effective::WorkExperienceProject)}") do
-    - datatable = EffectiveWorkExperienceProjectsDatatable.new(self, user: current_user, namespace: :effective)
-    = render_datatable(datatable)
+  .mb-2
+    = collapse("Show #{ets(Effective::WorkExperienceProject)}") do
+      - datatable = EffectiveWorkExperienceProjectsDatatable.new(self, user: current_user, namespace: :effective)
+      = render_datatable(datatable)
 
-%p= link_to "Add a new #{etd(Effective::WorkExperienceProject)}", effective_work_experience.new_work_experience_project_path, class: 'btn btn-primary'
+  %p= link_to "Add a new #{etd(Effective::WorkExperienceProject)}", effective_work_experience.new_work_experience_project_path, class: 'btn btn-primary'
 
-%hr
+  %hr
 
 %h4 #{EffectiveWorkExperience.summary_months}-Month Summary Submissions
 %p Every #{EffectiveWorkExperience.summary_months} months you are required to submit a summary of your work experience to be reviewed by your #{work_experience_mentor_label.downcase}.

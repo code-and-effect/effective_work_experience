@@ -84,6 +84,10 @@ module EffectiveWorkExperienceHelper
     ets(Effective::WorkExperienceSubcategory)
   end
 
+  def work_experience_subcategories_collection
+    Effective::WorkExperienceSubcategory.all.sorted
+  end
+
   # Display hours with one decimal place
   def work_experience_hours_to_s(hours)
     return if hours.blank?
