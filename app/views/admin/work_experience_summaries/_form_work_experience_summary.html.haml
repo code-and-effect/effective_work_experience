@@ -23,8 +23,10 @@
   = f.date_field :start_on
   = f.date_field :end_on
   = f.number_field :total_hours
-  = f.select :recommendation, work_experience_recommendation_collection
-  = f.text_area :comments
+  = f.select :mentor_recommendation, work_experience_recommendation_collection
+  = f.text_area :mentor_comments
+  = f.select :supervisor_recommendation, work_experience_recommendation_collection
+  = f.text_area :supervisor_comments
   = f.datetime_field :submitted_at
   = f.datetime_field :reviewed_at
   = f.text_field :token

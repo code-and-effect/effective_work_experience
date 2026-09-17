@@ -52,7 +52,11 @@ module EffectiveWorkExperienceSummary
 
       # Mentor steps
       review: 'Mentor Review',
-      reviewed: 'Reviewed'
+      reviewed: 'Reviewed',
+
+      # Supervisor steps
+      review_two: 'Supervisor Review',
+      reviewed_two: 'Reviewed'
     )
 
     # The mentor review step
@@ -67,8 +71,13 @@ module EffectiveWorkExperienceSummary
 
       total_hours           :decimal    # The total number of hours worked this period
 
-      recommendation        :string
-      comments              :text       # Private rolling comments displayed to the mentor
+      # Review Step
+      mentor_recommendation     :string
+      mentor_comments           :text       # Private rolling comments displayed to the mentor
+
+      # ReviewTwo Step
+      supervisor_recommendation :string
+      supervisor_comments       :text
 
       # Acts as Statused
       status                :string
@@ -112,8 +121,12 @@ module EffectiveWorkExperienceSummary
       assign_attributes(total_hours: calculate_total_hours)
     end
 
-    before_validation do
-      assign_attributes(recommendation: recommendations.first) if approve_work_experience_summary
+    before_validation(if: -> { current_step == :review }) do
+      assign_attributes(mentor_recommendation: recommendations.first) if approve_work_experience_summary
+    end
+
+    before_validation(if: -> { current_step == :review_two }) do
+      assign_attributes(supervisor_recommendation: recommendations.first) if approve_work_experience_summary
     end
 
     validates :start_on, presence: true, uniqueness: { scope: [:user_id, :user_type] }
@@ -131,7 +144,12 @@ module EffectiveWorkExperienceSummary
 
     with_options(if: -> { current_step == :review }) do
       validates :approve_work_experience_summary, acceptance: true
-      validates :recommendation, presence: true
+      validates :mentor_recommendation, presence: true
+    end
+
+    with_options(if: -> { current_step == :review_two }) do
+      validates :approve_work_experience_summary, acceptance: true
+      validates :supervisor_recommendation, presence: true
     end
 
     def can_visit_step?(current_step)
@@ -166,6 +184,10 @@ module EffectiveWorkExperienceSummary
     [:submitted, :review, :reviewed]
   end
 
+  def supervisor_steps
+    [:submitted, :review_two, :reviewed_two]
+  end
+
   def recommendations
     Array(EffectiveWorkExperience.recommendations)
   end
@@ -188,7 +210,6 @@ module EffectiveWorkExperienceSummary
   def mentor_present?
     mentor.present? || user.try(:work_experience_outside_mentor?).present?
   end
-
 
   def total_hours_to_date
     user.work_experience_total_hours_to_date(month: end_on)
@@ -240,7 +261,7 @@ module EffectiveWorkExperienceSummary
     submitted!
 
     # Auto review summaries for interns without a mentor user
-    review! if mentor.blank?
+    review! if mentor.blank? && supervisor.blank?
 
     true
   end
@@ -251,6 +272,19 @@ module EffectiveWorkExperienceSummary
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
     unless was_reviewed? || mentor.blank? || importing
+      after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
+    end
+
+    work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
+    reviewed!
+  end
+
+  def review_two!
+    wizard_steps[:review_two] ||= Time.zone.now
+    wizard_steps[:reviewed_two] = Time.zone.now
+
+    # If it was previously reviewed, or there is no mentor, we don't want to send an email
+    unless was_reviewed? || supervisor.blank? || importing
       after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
     end
 

@@ -157,12 +157,14 @@ ActiveRecord::Schema[8.1].define(version: 101) do
   end
 
   create_table "work_experience_summaries", force: :cascade do |t|
-    t.text "comments"
+    t.text "mentor_comments"
     t.datetime "created_at", null: false
     t.date "end_on"
     t.integer "mentor_id"
     t.string "mentor_type"
-    t.string "recommendation"
+    t.string "mentor_recommendation"
+    t.string "supervisor_recommendation"
+    t.text "supervisor_comments"
     t.datetime "reviewed_at", precision: nil
     t.date "start_on"
     t.string "status"

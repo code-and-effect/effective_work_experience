@@ -39,8 +39,10 @@ module Admin
         work_experience_summary.reviewed_at&.strftime('%F')
       end
 
-      col :recommendation, visible: false
-      col :comments
+      col :mentor_recommendation, visible: false
+      col :mentor_comments
+      col :supervisor_recommendation, visible: false
+      col :supervisor_comments
 
       col :status_steps, visible: false
       col :wizard_steps, visible: false

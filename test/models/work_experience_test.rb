@@ -150,12 +150,22 @@ class WorkExperienceTest < ActiveSupport::TestCase
     work_experience_summary = create_work_experience_summary!()
     work_experience_summary.submit!
 
-    work_experience_summary.assign_attributes(recommendation: 'Recommend Approve')
+    work_experience_summary.assign_attributes(
+      approve_work_experience_summary: true,
+      mentor_comments: 'Mentor notes',
+      supervisor_recommendation: 'Recommend Decline',
+      supervisor_comments: 'Supervisor notes'
+    )
 
     assert_email(count: 1) { work_experience_summary.review! }
 
     assert work_experience_summary.was_reviewed?
     assert work_experience_summary.reviewed?
+    work_experience_summary.reload
+    assert_equal work_experience_summary.recommendations.first, work_experience_summary.mentor_recommendation
+    assert_equal 'Mentor notes', work_experience_summary.mentor_comments
+    assert_equal 'Recommend Decline', work_experience_summary.supervisor_recommendation
+    assert_equal 'Supervisor notes', work_experience_summary.supervisor_comments
 
     assert work_experience_summary.work_experience_records.all? { |work_experience_record| work_experience_record.was_reviewed? }
   end

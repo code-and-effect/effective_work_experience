@@ -22,8 +22,11 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
 
     col :status
 
-    col :recommendation, search: :string, visible: false
-    col :comments, visible: false
+    col :mentor_recommendation, search: :string, visible: false
+    col :mentor_comments, visible: false
+
+    col :supervisor_recommendation, search: :string, visible: false
+    col :supervisor_comments, visible: false
 
     actions_col(show: false) do |work_experience_summary|
       if !EffectiveResources.authorized?(self, :update, work_experience_summary)

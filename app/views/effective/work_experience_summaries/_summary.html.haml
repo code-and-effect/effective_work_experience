@@ -38,7 +38,13 @@
     - if work_experience_summary.supervisor.present?
       %tr
         %th= work_experience_supervisor_label
-        %td= render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.supervisor)
+        %td
+          = render('effective/work_experience_summaries/user', work_experience_summary: work_experience_summary, user: work_experience_summary.supervisor)
+
+          - if admin
+            - url = (polymorphic_admin_path(work_experience_summary.supervisor) rescue nil)
+            - if url.present?
+              %div= link_to(work_experience_summary.supervisor, url)
 
     - if (outside_mentor = user.try(:work_experience_outside_mentor)).present?
       %tr

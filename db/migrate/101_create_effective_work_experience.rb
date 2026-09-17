@@ -102,8 +102,10 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
 
       t.decimal :total_hours, precision: 10, scale: 2
 
-      t.string :recommendation
-      t.text :comments
+      t.string :mentor_recommendation
+      t.text :mentor_comments
+      t.string :supervisor_recommendation
+      t.text :supervisor_comments
 
       t.datetime :submitted_at
       t.datetime :reviewed_at
