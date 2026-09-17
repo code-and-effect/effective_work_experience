@@ -41,11 +41,13 @@ class WorkExperienceTest < ActiveSupport::TestCase
     EffectiveWorkExperience.mode = :hours_log
     user = build_intern()
     date = Date.current
+    subcategory = Effective::WorkExperienceSubcategory.sorted.first
 
-    first = user.work_experience_records.create!(date: date, description: 'Site planning', total_hours: 2.5)
-    second = user.work_experience_records.create!(date: date, description: 'Design review', total_hours: 1.25)
+    first = user.work_experience_records.create!(month: date, date: date, description: 'Site planning', total_hours: 2.5, work_experience_subcategory: subcategory)
+    second = user.work_experience_records.create!(month: date, date: date, description: 'Design review', total_hours: 1.25, work_experience_subcategory: subcategory)
 
     assert_equal date, first.reload.date
+    assert_equal subcategory, first.work_experience_subcategory
     assert_equal 'Site planning', first.description
     assert_equal date.beginning_of_month, first.month
     assert_equal 2.5, first.total_hours
@@ -59,6 +61,28 @@ class WorkExperienceTest < ActiveSupport::TestCase
     assert_equal 3.75, summary.total_hours
   ensure
     EffectiveWorkExperience.mode = original_mode
+  end
+
+  test 'hours log records require description date and subcategory' do
+    original_mode = EffectiveWorkExperience.mode
+    EffectiveWorkExperience.mode = :hours_log
+    record = Effective::WorkExperienceRecord.new(user: build_intern(), month: Date.current, total_hours: 2.5)
+
+    refute record.valid?
+    assert record.errors[:description].present?
+    assert record.errors[:date].present?
+    assert record.errors[:work_experience_subcategory].present?
+  ensure
+    EffectiveWorkExperience.mode = original_mode
+  end
+
+  test 'monthly grid records do not require description date or a record subcategory' do
+    record = build_work_experience_record()
+
+    assert_nil record.description
+    assert_nil record.date
+    assert_nil record.work_experience_subcategory
+    assert record.valid?, record.errors.full_messages.to_sentence
   end
 
   test 'work experience summary' do

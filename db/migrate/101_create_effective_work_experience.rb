@@ -34,6 +34,7 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
     create_table :work_experience_records, if_not_exists: true do |t|
       t.integer :user_id
       t.string :user_type
+      t.integer :work_experience_subcategory_id
 
       t.text :description
       t.date :date

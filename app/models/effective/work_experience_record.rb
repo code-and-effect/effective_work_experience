@@ -5,8 +5,12 @@ module Effective
 
     belongs_to :user, polymorphic: true
 
+    # When in Monthly Grid mode only
     has_many :work_experience_entries, -> { order(:id) }, class_name: 'Effective::WorkExperienceEntry', inverse_of: :work_experience_record, dependent: :destroy
     accepts_nested_attributes_for :work_experience_entries, allow_destroy: true
+
+    # When in Hours Log mode only
+    belongs_to :work_experience_subcategory, class_name: 'Effective::WorkExperienceSubcategory', optional: true
 
     log_changes(to: :user) if respond_to?(:log_changes)
     has_many_rich_texts
@@ -18,10 +22,12 @@ module Effective
     )
 
     effective_resource do
-      description           :text
-      date                  :date
       month                 :date       # The 1st day of the month of the work experience
       total_hours           :decimal    # The total number of hours worked for the month
+
+      # When in Hours Log mode
+      description           :text
+      date                  :date
 
       # There can only be one backdated work experience record
       backdated             :boolean, default: false
@@ -47,9 +53,17 @@ module Effective
 
     validates :month, presence: true, unless: -> { backdated }
     validates :month, absence: true, if: -> { backdated }
-
-    validates :month, uniqueness: { scope: [:user_id, :user_type] }, if: -> { EffectiveWorkExperience.mode == :monthly_grid }
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0 }
+
+    with_options(if: -> { EffectiveWorkExperience.mode == :monthly_grid }) do
+      validates :month, uniqueness: { scope: [:user_id, :user_type] }
+    end
+
+    with_options(if: -> { EffectiveWorkExperience.mode == :hours_log }) do
+      validates :description, presence: true
+      validates :date, presence: true
+      validates :work_experience_subcategory, presence: true
+    end
 
     validate(if: -> { month.present? }) do
       errors.add(:month, 'must be the first day of the month') unless month.day == 1
@@ -60,7 +74,7 @@ module Effective
     scope :during, ->(months) { where(month: months) }
 
     def to_s
-      month&.strftime('%B %Y') || model_name.human
+      description.presence || month&.strftime('%B %Y') || model_name.human
     end
 
     def work_experience_subcategories

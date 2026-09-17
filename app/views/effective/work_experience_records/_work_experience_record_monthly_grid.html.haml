@@ -1,0 +1,63 @@
+= card(et(work_experience_record.class)) do
+  = effective_table_with(work_experience_record, additionally: [:user, :month]) do |f|
+    = f.content_for :month, label: 'Month' do
+      = f.object.month&.strftime('%F') || 'Backdated'
+
+    = f.content_for :total_hours, label: 'Hours this month' do
+      = work_experience_hours_to_s(f.object.total_hours)
+
+    = f.content_for :total_hours_so_far, label: 'Total hours to date' do
+      = work_experience_hours_to_s(f.object.total_hours_to_date)
+
+  - user = work_experience_record.user
+  - ceiling_month = Date.new(9999, 12, 31)
+
+  %table.table.table-hover
+    %thead
+      %tr
+        %th
+        %th.text-center Week 1
+        %th.text-center Week 2
+        %th.text-center Week 3
+        %th.text-center Week 4
+        %th.text-center Week 5
+        %th.text-right Hours to Date
+        %th.text-right Min Requirement
+
+    - work_experience_record.work_experience_subcategories.group_by(&:work_experience_category).each do |work_experience_category, work_experience_subcategories|
+      %tbody
+        - category_hours = work_experience_subcategories.sum { |work_experience_subcategory| user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month) }
+        %tr
+          %th{colspan: 6}= work_experience_category
+          %th.text-right= (category_hours > 0.0 ? work_experience_hours_to_s(category_hours) : '-')
+          %th.text-right
+            - if work_experience_category.minimum_hours.present?
+              #{work_experience_category.minimum_hours} hours
+
+        - work_experience_subcategories.each do |work_experience_subcategory|
+          - work_experience_entry = work_experience_record.work_experience_entry(work_experience_subcategory: work_experience_subcategory)
+
+          %tr
+            %td= work_experience_entry.work_experience_subcategory
+            %td.text-right= work_experience_hours_to_s(work_experience_entry.week_1)
+            %td.text-right= work_experience_hours_to_s(work_experience_entry.week_2)
+            %td.text-right= work_experience_hours_to_s(work_experience_entry.week_3)
+            %td.text-right= work_experience_hours_to_s(work_experience_entry.week_4)
+            %td.text-right= work_experience_hours_to_s(work_experience_entry.week_5)
+            %td.text-right
+              - hours = user.work_experience_total_hours_to_date(work_experience_subcategory: work_experience_subcategory, month: ceiling_month)
+              = (hours > 0.0 ? work_experience_hours_to_s(hours) : '-')
+            %td.text-right
+              - if work_experience_subcategory.minimum_hours.present?
+                #{work_experience_subcategory.minimum_hours} hours
+
+    %tfoot
+      %tr
+        %th
+        %th.text-right= work_experience_hours_to_s(work_experience_record.week_1_total)
+        %th.text-right= work_experience_hours_to_s(work_experience_record.week_2_total)
+        %th.text-right= work_experience_hours_to_s(work_experience_record.week_3_total)
+        %th.text-right= work_experience_hours_to_s(work_experience_record.week_4_total)
+        %th.text-right= work_experience_hours_to_s(work_experience_record.week_5_total)
+        %th.text-right= work_experience_hours_to_s(user.work_experience_total_hours_to_date(month: ceiling_month))
+        %th
