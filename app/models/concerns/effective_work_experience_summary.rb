@@ -258,7 +258,12 @@ module EffectiveWorkExperienceSummary
     when 'submitted'
       "Work experience summary has been submitted."
     when 'reviewed'
-      "Work experience summary has been reviewed."
+      reviewers = [
+        ("the #{self.class.human_attribute_name(:mentor)}" if mentor_recommendation.present?),
+        ("the #{self.class.human_attribute_name(:supervisor)}" if supervisor_recommendation.present?)
+      ].compact.join(' and ')
+
+      reviewers.present? ? "Work experience summary has been reviewed by #{reviewers}." : "Work experience summary has been reviewed."
     else
       raise("unexpected status #{status}")
     end.html_safe
