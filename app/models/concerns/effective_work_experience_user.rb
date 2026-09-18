@@ -99,6 +99,10 @@ module EffectiveWorkExperienceUser
     @work_experience_subcategories ||= Effective::WorkExperienceSubcategory.all.sorted
   end
 
+  def work_experience_approved_hours(category:)
+    work_experience_summaries.where(category: category, status: [:approved, :auto_approved]).sum(:total_hours).round(2)
+  end
+
   # One subcategory and month
   def work_experience_hours(month:, work_experience_subcategory: nil)
     if EffectiveWorkExperience.mode == :hours_log

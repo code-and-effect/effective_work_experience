@@ -61,8 +61,11 @@ module Admin
 
       col :submitted_at, label: 'Submitted', as: :date
       col :reviewed_at, label: 'Reviewed', as: :date, visible: false
-      col :approved_at, label: 'Approved', as: :date, visible: false
-      col :declined_at, label: 'Declined', as: :date, visible: false
+
+      if EffectiveWorkExperience.WorkExperienceSummary::STATUSES.include?(:approved)
+        col :approved_at, label: 'Approved', as: :date, visible: false
+        col :declined_at, label: 'Declined', as: :date, visible: false
+      end
 
       col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
       col :mentor_comments, label: "#{work_experience_mentor_label} Comments", visible: false
