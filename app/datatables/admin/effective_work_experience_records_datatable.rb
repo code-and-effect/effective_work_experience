@@ -13,6 +13,11 @@ module Admin
         work_experience_record.month&.strftime('%F') || 'Backdated'
       end
 
+      if EffectiveWorkExperience.mode == :hours_log
+        col(:work_experience_subcategory, search: Effective::WorkExperienceSubcategory.all)
+        col(:description)
+      end
+
       col(:total_hours, label: 'Hours') do |work_experience_record|
         work_experience_hours_to_s(work_experience_record.total_hours)
       end.aggregate do |work_experience_records|
