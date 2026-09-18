@@ -34,16 +34,20 @@ module Admin
 
       col :user, label: work_experience_intern_label
 
-      if current_user.class.try(:effective_memberships_user?)
-        col(:membership_categories, label: et(EffectiveMemberships.Category), sort: false, search: effective_memberships_categories) do |work_experience_summary|
-          safe_join(Array(work_experience_summary.user.try(:membership).try(:membership_categories)).map do |membership_category|
-            content_tag(:div, membership_category, class: 'col-resource')
-          end)
-        end.search do |collection, term|
-          memberships = Effective::Membership.where(owner_type: current_user.class.name).with_category(term)
-          collection.where(user_id: memberships.select('owner_id'))
-        end
+      if EffectiveWorkExperience.categories.present?
+        col :category, search: EffectiveWorkExperience.categories
       end
+
+      # if current_user.class.try(:effective_memberships_user?)
+      #   col(:membership_categories, label: et(EffectiveMemberships.Category), sort: false, search: effective_memberships_categories) do |work_experience_summary|
+      #     safe_join(Array(work_experience_summary.user.try(:membership).try(:membership_categories)).map do |membership_category|
+      #       content_tag(:div, membership_category, class: 'col-resource')
+      #     end)
+      #   end.search do |collection, term|
+      #     memberships = Effective::Membership.where(owner_type: current_user.class.name).with_category(term)
+      #     collection.where(user_id: memberships.select('owner_id'))
+      #   end
+      # end
 
       col :mentor, label: work_experience_mentor_label, visible: false
 
