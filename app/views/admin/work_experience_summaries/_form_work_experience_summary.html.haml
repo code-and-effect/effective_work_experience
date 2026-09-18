@@ -2,7 +2,8 @@
   = f.hidden_field :user_id
   = f.hidden_field :user_type, value: current_user.class.name
   = f.hidden_field :mentor_type, value: current_user.class.name
-  = f.hidden_field :supervisor_type, value: current_user.class.name
+  - if EffectiveWorkExperience.use_supervisor?
+    = f.hidden_field :supervisor_type, value: current_user.class.name
 
   - unless inline_datatable?
     = f.select :user_id, current_user.class.all, label: work_experience_intern_label,
@@ -11,8 +12,9 @@
     = f.select :mentor_id, current_user.class.all, label: work_experience_mentor_label,
     ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
 
-    = f.select :supervisor_id, current_user.class.all, label: work_experience_supervisor_label,
-    ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
+    - if EffectiveWorkExperience.use_supervisor?
+      = f.select :supervisor_id, current_user.class.all, label: work_experience_supervisor_label,
+      ajax_url: (effective_resources.users_effective_ajax_index_path unless Rails.env.test?)
 
   = f.select :status, work_experience_summary_status_collection
 
@@ -25,8 +27,9 @@
   = f.number_field :total_hours
   = f.select :mentor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_mentor_label} recommendation"
   = f.text_area :mentor_comments, label: "#{work_experience_mentor_label} comments"
-  = f.select :supervisor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_supervisor_label} recommendation"
-  = f.text_area :supervisor_comments, label: "#{work_experience_supervisor_label} comments"
+  - if EffectiveWorkExperience.use_supervisor?
+    = f.select :supervisor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_supervisor_label} recommendation"
+    = f.text_area :supervisor_comments, label: "#{work_experience_supervisor_label} comments"
   = f.datetime_field :submitted_at
   = f.datetime_field :reviewed_at
   = f.text_field :token

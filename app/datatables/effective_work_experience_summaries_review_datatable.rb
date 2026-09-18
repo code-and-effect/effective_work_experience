@@ -37,7 +37,8 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
         dropdown_link_to('Start Review', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
       else
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
-        dropdown_link_to('Review again', effective_work_experience.work_experience_summary_build_path(work_experience_summary, work_experience_summary.next_step), 'data-turbolinks' => false, 'data-turbo' => false)
+        step = (EffectiveWorkExperience.use_supervisor? && work_experience_summary.supervisor == current_user && work_experience_summary.mentor != current_user) ? :review_two : :review
+        dropdown_link_to('Review again', effective_work_experience.work_experience_summary_build_path(work_experience_summary, step), 'data-turbolinks' => false, 'data-turbo' => false)
       end
     end
   end

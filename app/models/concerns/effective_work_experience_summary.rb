@@ -348,12 +348,14 @@ module EffectiveWorkExperienceSummary
 
     recommendations = [mentor_recommendation, (supervisor_recommendation if EffectiveWorkExperience.use_supervisor?)]
 
+    # Any recommend decline declines
     if recommendations.any? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).last }
-      return approve!
+      return decline!
     end
 
+    # Any recommend approve approves
     if recommendations.all? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).first }
-      return decline!
+      return approve!
     end
 
     # Stay reviewed
