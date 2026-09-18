@@ -68,6 +68,15 @@ module EffectiveWorkExperienceUser
     }
   end
 
+  def current_work_experience_category
+    categories = Array(EffectiveWorkExperience.categories)
+    return if categories.blank?
+
+    if self.class.try(:effective_memberships_user?)
+      categories.find { |cat| membership.try(:category).to_s == cat }
+    end
+  end
+
   def work_experience_intern?
     return true if try(:intern?) || try(:pre_intern?) || try(:any_intern?)
     work_experience_records.present? || work_experience_summaries.present?

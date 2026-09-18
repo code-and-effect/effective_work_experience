@@ -10,15 +10,26 @@ module Admin
     end
 
     datatable do
-      order :updated_at
+      order :start_on
 
       col :updated_at, visible: false
       col :created_at, visible: false
       col :id, visible: false
 
-      col :start_on, search: work_experience_summary_start_on_collection()
-      col :end_on, visible: false
-      col :period
+      if EffectiveWorkExperience.mode == :hours_log
+        col :start_on, search: work_experience_summary_start_on_collection(), visible: false
+        col :end_on, visible: false
+        col :period, visible: false
+        col :year, search: EffectiveWorkExperience.WorkExperienceSummary.distinct.pluck(:year).compact.sort.reverse
+        col :quarter, search: (1..4).to_a
+      else
+        col :start_on, search: work_experience_summary_start_on_collection()
+        col :end_on, visible: false
+        col :period
+        col :year, search: EffectiveWorkExperience.WorkExperienceSummary.distinct.pluck(:year).compact.sort.reverse, visible: false
+        col :quarter, search: (1..4).to_a, visible: false
+      end
+
       col :status
 
       col :user, label: work_experience_intern_label
@@ -56,11 +67,11 @@ module Admin
         work_experience_summary.reviewed_at&.strftime('%F')
       end
 
-      col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", visible: false
+      col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
       col :mentor_comments, label: "#{work_experience_mentor_label} Comments", visible: false
 
       if EffectiveWorkExperience.use_supervisor?
-        col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", visible: false
+        col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
         col :supervisor_comments, label: "#{work_experience_supervisor_label} Comments", visible: false
       end
 

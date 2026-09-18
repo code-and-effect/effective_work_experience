@@ -83,6 +83,10 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
     end
 
     create_table :work_experience_summaries, if_not_exists: true do |t|
+      t.string :category
+      t.integer :year
+      t.integer :quarter
+
       t.integer :user_id
       t.string :user_type
 

@@ -2,6 +2,7 @@
   = f.hidden_field :user_id
   = f.hidden_field :user_type, value: current_user.class.name
   = f.hidden_field :mentor_type, value: current_user.class.name
+
   - if EffectiveWorkExperience.use_supervisor?
     = f.hidden_field :supervisor_type, value: current_user.class.name
 
@@ -18,20 +19,7 @@
 
   = f.select :status, work_experience_summary_status_collection
 
-  -# Read only. These are serialized hashes and can't be submitted back as text.
-  = f.static_field :status_steps
-  = f.static_field :wizard_steps
-
   = f.date_field :start_on
   = f.date_field :end_on
-  = f.number_field :total_hours
-  = f.select :mentor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_mentor_label} recommendation"
-  = f.text_area :mentor_comments, label: "#{work_experience_mentor_label} comments"
-  - if EffectiveWorkExperience.use_supervisor?
-    = f.select :supervisor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_supervisor_label} recommendation"
-    = f.text_area :supervisor_comments, label: "#{work_experience_supervisor_label} comments"
-  = f.datetime_field :submitted_at
-  = f.datetime_field :reviewed_at
-  = f.text_field :token
 
   = effective_submit(f)

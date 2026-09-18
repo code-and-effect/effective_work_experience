@@ -7,9 +7,19 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
     col :created_at, visible: false
     col :user, visible: false
 
-    col :start_on
-    col :end_on, visible: false
-    col :period
+    if EffectiveWorkExperience.mode == :hours_log
+      col :start_on, search: work_experience_summary_start_on_collection(), visible: false
+      col :end_on, visible: false
+      col :period, visible: false
+      col :year, search: EffectiveWorkExperience.WorkExperienceSummary.distinct.pluck(:year).compact.sort.reverse
+      col :quarter, search: (1..4).to_a
+    else
+      col :start_on, search: work_experience_summary_start_on_collection()
+      col :end_on, visible: false
+      col :period
+      col :year, search: EffectiveWorkExperience.WorkExperienceSummary.distinct.pluck(:year).compact.sort.reverse, visible: false
+      col :quarter, search: (1..4).to_a, visible: false
+    end
 
     col :mentor, label: work_experience_mentor_label, visible: false
 

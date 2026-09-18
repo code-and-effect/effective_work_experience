@@ -66,6 +66,11 @@ module EffectiveWorkExperienceSummary
       start_on              :date
       end_on                :date
 
+      category              :string
+
+      year                  :integer
+      quarter               :integer
+
       total_hours           :decimal    # The total number of hours worked this period
 
       # Review Step
@@ -104,6 +109,10 @@ module EffectiveWorkExperienceSummary
       assign_attributes(mentor: user.try(:work_experience_mentor), supervisor: user.try(:work_experience_supervisor))
     end
 
+    before_validation(if: -> { category.blank? && user.present? }) do
+      self.category ||= user.current_work_experience_category
+    end
+
     before_validation do
       # The admin forms assign the mentor and supervisor id without the polymorphic type
       assign_attributes(mentor_type: (mentor_type.presence || user&.class&.name)) if mentor_id.present?
@@ -113,8 +122,9 @@ module EffectiveWorkExperienceSummary
       assign_attributes(supervisor_type: nil) if supervisor_id.blank?
     end
 
-    before_validation do
-      assign_attributes(start_on: start_on&.beginning_of_quarter, end_on: start_on&.end_of_quarter)
+    before_validation(if: -> { start_on.present? }) do
+      assign_attributes(start_on: start_on.beginning_of_quarter, end_on: start_on.end_of_quarter)
+      assign_attributes(year: start_on.year, quarter: start_on.quarter)
       assign_attributes(total_hours: calculate_total_hours)
     end
 

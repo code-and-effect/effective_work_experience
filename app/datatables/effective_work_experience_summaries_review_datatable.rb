@@ -22,11 +22,11 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
 
     col :status
 
-    col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: :string, visible: false
+    col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
     col :mentor_comments, label: "#{work_experience_mentor_label} Comments", visible: false
 
     if EffectiveWorkExperience.use_supervisor?
-      col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", search: :string, visible: false
+      col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
       col :supervisor_comments, label: "#{work_experience_supervisor_label} Comments", visible: false
     end
 

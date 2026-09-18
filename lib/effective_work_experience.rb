@@ -14,7 +14,7 @@ module EffectiveWorkExperience
 
       :work_experience_summary_class_name,
 
-      :layout, :mode, :recommendations, :summary_months, :use_supervisor,
+      :layout, :mode, :categories, :recommendations, :summary_months, :use_supervisor,
       :mailer, :parent_mailer, :deliver_method, :mailer_layout, :mailer_sender, :mailer_admin, :mailer_subject
     ]
   end

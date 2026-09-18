@@ -13,6 +13,9 @@ EffectiveWorkExperience.setup do |config|
   # Display only for now. Every period is one calendar quarter.
   config.summary_months = 3
 
+  # Optional categories recorded on work experience summaries
+  config.categories = []
+
   # The recommendations a mentor may make when reviewing a work experience summary
   config.recommendations = ['Recommend Approve', 'Recommend Decline']
 
