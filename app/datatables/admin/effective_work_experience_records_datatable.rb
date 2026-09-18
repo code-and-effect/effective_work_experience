@@ -14,7 +14,7 @@ module Admin
       end
 
       if EffectiveWorkExperience.mode == :hours_log
-        col(:work_experience_subcategory, label: et(Effective::WorkExperienceSubcategory), search: Effective::WorkExperienceSubcategory.all)
+        col(:work_experience_subcategory, label: 'Category', search: Effective::WorkExperienceSubcategory.all)
         col(:description)
       end
 

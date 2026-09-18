@@ -6,6 +6,9 @@ EffectiveWorkExperience.setup do |config|
   # How work experience is recorded: :monthly_grid or :hours_log
   config.mode = :monthly_grid
 
+  # Display supervisor columns alongside mentor columns in work experience datatables
+  config.use_supervisor = false
+
   # The number of months in each work experience summary period
   # Display only for now. Every period is one calendar quarter.
   config.summary_months = 3

@@ -25,8 +25,10 @@ class EffectiveWorkExperienceSummariesReviewDatatable < Effective::Datatable
     col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: :string, visible: false
     col :mentor_comments, label: "#{work_experience_mentor_label} Comments", visible: false
 
-    col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", search: :string, visible: false
-    col :supervisor_comments, label: "#{work_experience_supervisor_label} Comments", visible: false
+    if EffectiveWorkExperience.use_supervisor?
+      col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", search: :string, visible: false
+      col :supervisor_comments, label: "#{work_experience_supervisor_label} Comments", visible: false
+    end
 
     actions_col(show: false) do |work_experience_summary|
       if !EffectiveResources.authorized?(self, :update, work_experience_summary)

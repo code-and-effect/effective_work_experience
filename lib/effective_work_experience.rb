@@ -14,7 +14,7 @@ module EffectiveWorkExperience
 
       :work_experience_summary_class_name,
 
-      :layout, :mode, :recommendations, :summary_months,
+      :layout, :mode, :recommendations, :summary_months, :use_supervisor,
       :mailer, :parent_mailer, :deliver_method, :mailer_layout, :mailer_sender, :mailer_admin, :mailer_subject,
       :use_effective_email_templates
     ]
@@ -26,6 +26,10 @@ module EffectiveWorkExperience
     mode = config[:mode]
     raise ArgumentError, 'work experience mode must be :hours_log or :monthly_grid' unless [:hours_log, :monthly_grid].include?(mode)
     mode
+  end
+
+  def self.use_supervisor?
+    !!use_supervisor
   end
 
   # The only swappable class. Mark yours with effective_work_experience_summary

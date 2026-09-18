@@ -12,7 +12,10 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
     col :period
 
     col :mentor, label: work_experience_mentor_label, visible: false
-    col :supervisor, label: work_experience_supervisor_label, visible: false
+
+    if EffectiveWorkExperience.use_supervisor?
+      col :supervisor, label: work_experience_supervisor_label, visible: false
+    end
 
     col(:total_hours, label: 'Hours') do |work_experience_summary|
       work_experience_hours_to_s(work_experience_summary.total_hours)
