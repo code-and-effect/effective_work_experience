@@ -5,27 +5,27 @@ module EffectiveWorkExperienceHelper
   end
 
   def work_experience_mentor_label
-    et(EffectiveWorkExperience.WorkExperienceSummary, :mentor)
+    et('effective_work_experience.mentor')
   end
 
   def work_experience_mentors_label
-    ets(EffectiveWorkExperience.WorkExperienceSummary, :mentor)
+    ets('effective_work_experience.mentor')
   end
 
   def work_experience_intern_label
-    et(EffectiveWorkExperience.WorkExperienceSummary, :user)
+    et('effective_work_experience.intern')
   end
 
   def work_experience_interns_label
-    ets(EffectiveWorkExperience.WorkExperienceSummary, :user)
+    ets('effective_work_experience.intern')
   end
 
   def work_experience_supervisor_label
-    et(EffectiveWorkExperience.WorkExperienceSummary, :supervisor)
+    et('effective_work_experience.supervisor')
   end
 
   def work_experience_supervisors_label
-    ets(EffectiveWorkExperience.WorkExperienceSummary, :supervisor)
+    ets('effective_work_experience.supervisor')
   end
 
   def work_experience_record_label

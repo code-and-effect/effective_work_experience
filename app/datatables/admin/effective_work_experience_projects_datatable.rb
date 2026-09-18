@@ -7,7 +7,7 @@ module Admin
       col :created_at, visible: false
       col :id, visible: false
 
-      col :user, label: 'Intern'
+      col :user, label: work_experience_intern_label
       col :start_on
       col :end_on
       col :name

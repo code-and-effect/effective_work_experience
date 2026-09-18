@@ -1,8 +1,8 @@
 module Admin
   class EffectiveWorkExperienceReportsDatatable < Effective::Datatable
     datatable do
-      col :user, label: 'Intern'
-      col :mentor
+      col :user, label: work_experience_intern_label
+      col :mentor, label: work_experience_mentor_label
 
       col(:total_hours, label: 'Total hours to date', as: :decimal) do |hours|
         work_experience_hours_to_s(hours)

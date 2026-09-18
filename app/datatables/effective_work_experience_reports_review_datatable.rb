@@ -2,7 +2,7 @@
 # Work experience reports for the current user's mentees and supervisees
 class EffectiveWorkExperienceReportsReviewDatatable < Effective::Datatable
   datatable do
-    col :user, label: 'Intern'
+    col :user, label: work_experience_intern_label
 
     actions_col do |user|
       dropdown_link_to("Show #{et(Effective::WorkExperienceReport)}", effective_work_experience.work_experience_report_path(user))

@@ -8,7 +8,7 @@ module Admin
       col :id, visible: false
 
       col :position
-      col :work_experience_category, search: { collection: Effective::WorkExperienceCategory.sorted.all }
+      col :work_experience_category, label: et(Effective::WorkExperienceCategory), search: { collection: Effective::WorkExperienceCategory.sorted.all }
       col :title
       col :minimum_hours
       col :body

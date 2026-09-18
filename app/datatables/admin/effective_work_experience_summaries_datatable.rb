@@ -19,9 +19,9 @@ module Admin
       col :period
       col :status
 
-      col :user, label: 'Intern'
-      col :mentor
-      col :supervisor, visible: false
+      col :user, label: work_experience_intern_label
+      col :mentor, label: work_experience_mentor_label
+      col :supervisor, label: work_experience_supervisor_label, visible: false
 
       col(:total_hours) do |work_experience_summary|
         work_experience_hours_to_s(work_experience_summary.total_hours)
@@ -39,10 +39,10 @@ module Admin
         work_experience_summary.reviewed_at&.strftime('%F')
       end
 
-      col :mentor_recommendation, visible: false
-      col :mentor_comments
-      col :supervisor_recommendation, visible: false
-      col :supervisor_comments
+      col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", visible: false
+      col :mentor_comments, label: "#{work_experience_mentor_label} Comments"
+      col :supervisor_recommendation, label: "#{work_experience_supervisor_label} Recommendation", visible: false
+      col :supervisor_comments, label: "#{work_experience_supervisor_label} Comments"
 
       col :status_steps, visible: false
       col :wizard_steps, visible: false

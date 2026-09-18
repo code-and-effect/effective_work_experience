@@ -1,4 +1,4 @@
 - f.object.approve_work_experience_summary = true if f.object.supervisor_recommendation == f.object.recommendations.first
 = f.check_box :approve_work_experience_summary, label: "Approve #{et(f.object)}"
 
-= f.article_editor :supervisor_comments, hint: 'These are private comments and are not displayed to the intern'
+= f.article_editor :supervisor_comments, label: "#{work_experience_supervisor_label} comments", hint: "These are private comments and are not displayed to the #{work_experience_intern_label.downcase}"

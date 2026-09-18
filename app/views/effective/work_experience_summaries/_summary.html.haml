@@ -48,7 +48,7 @@
 
     - if (outside_mentor = user.try(:work_experience_outside_mentor)).present?
       %tr
-        %th Outside #{work_experience_mentor_label}
+        %th= et(Effective::WorkExperienceOutsideMentor)
         %td
           = outside_mentor.name
           %div= outside_mentor.regulated_profession

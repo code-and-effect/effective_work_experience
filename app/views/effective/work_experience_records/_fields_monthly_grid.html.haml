@@ -4,7 +4,7 @@
   %hr
 
 - if local_assigns[:namespace] == :admin
-  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. There can only be one backdated #{et(f.object)}. This allows admins to contribute hours to each category, which essentially reduces total required hours."
+  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. There can only be one backdated #{et(f.object)}. This allows admins to contribute hours to each #{work_experience_category_label.downcase}, which essentially reduces total required hours."
 
 - user = f.object.user
 - ceiling_month = Date.new(9999, 12, 31)

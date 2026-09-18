@@ -6,5 +6,5 @@
   = effective_form_with(model: resource, url: wizard_path(step), method: :put) do |f|
     = f.hidden_field :id
 
-    - label = ((resource.mentor.present? || resource.supervisor.present?) ? 'Submit for Review' : 'Submit Work Experience')
+    - label = ((resource.mentor.present? || resource.supervisor.present?) ? 'Submit for Review' : "Submit #{work_experience_name_label}")
     = f.submit label, left: true, class: 'btn btn-primary btn-lg btn-block'

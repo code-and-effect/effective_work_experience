@@ -4,7 +4,7 @@
   %hr
 
 - if local_assigns[:namespace] == :admin
-  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. This allows admins to contribute hours to each category, which essentially reduces total required hours."
+  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. This allows admins to contribute hours to each #{work_experience_category_label.downcase}, which essentially reduces total required hours."
 
 = f.select :work_experience_subcategory_id, work_experience_subcategories_collection
 = f.text_area :description

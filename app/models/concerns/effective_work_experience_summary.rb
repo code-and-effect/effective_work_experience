@@ -134,7 +134,7 @@ module EffectiveWorkExperienceSummary
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0, allow_blank: true }
 
     validate(if: -> { user.present? }) do
-      errors.add(:user, 'must have a mentor') unless mentor_present?
+      errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.mentor').downcase}") unless mentor_present?
     end
 
     validate(if: -> { start_on.present? && end_on.present? }) do
@@ -254,16 +254,16 @@ module EffectiveWorkExperienceSummary
   def summary
     case status_was
     when 'draft'
-      "Work experience summary has not yet been submitted."
+      "#{EffectiveResources.et(self.class)} has not yet been submitted."
     when 'submitted'
-      "Work experience summary has been submitted."
+      "#{EffectiveResources.et(self.class)} has been submitted."
     when 'reviewed'
       reviewers = [
-        ("the #{self.class.human_attribute_name(:mentor)}" if mentor_recommendation.present?),
-        ("the #{self.class.human_attribute_name(:supervisor)}" if supervisor_recommendation.present?)
+        (EffectiveResources.et('effective_work_experience.mentor') if mentor_recommendation.present?),
+        (EffectiveResources.et('effective_work_experience.supervisor') if supervisor_recommendation.present?)
       ].compact.join(' and ')
 
-      reviewers.present? ? "Work experience summary has been reviewed by #{reviewers}." : "Work experience summary has been reviewed."
+      reviewers.present? ? "#{EffectiveResources.et(self.class)} has been reviewed by #{reviewers}." : "#{EffectiveResources.et(self.class)} has been reviewed."
     else
       raise("unexpected status #{status}")
     end.html_safe
