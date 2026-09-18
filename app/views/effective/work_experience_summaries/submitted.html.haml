@@ -5,7 +5,7 @@
   .alert.alert-success.mb-4
     This #{etd(resource.class)} was submitted on #{resource.submitted_at.strftime('%F')}
 
-  - unless resource.reviewed?
+  - if resource.submitted?
     = card do
       %p
         Your #{etd(resource.class)} must still be reviewed.

@@ -113,6 +113,8 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
 
       t.datetime :submitted_at
       t.datetime :reviewed_at
+      t.datetime :approved_at
+      t.datetime :declined_at
 
       t.string :token
 

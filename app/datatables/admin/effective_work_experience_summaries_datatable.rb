@@ -2,11 +2,7 @@ module Admin
   class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
     filters do
       scope :all
-      scope :draft
-      scope :submitted
-      scope :reviewed
-      scope :approved if EffectiveWorkExperience.WorkExperienceSummary::STATUSES.include?(:approved)
-      scope :declined if EffectiveWorkExperience.WorkExperienceSummary::STATUSES.include?(:declined)
+      EffectiveWorkExperience.WorkExperienceSummary::STATUSES.each { |status| scope status }
     end
 
     datatable do
@@ -63,13 +59,10 @@ module Admin
         work_experience_hours_to_s(work_experience_summary.total_hours_to_date)
       end
 
-      col(:submitted_at, label: 'Submitted') do |work_experience_summary|
-        work_experience_summary.submitted_at&.strftime('%F')
-      end
-
-      col(:reviewed_at, label: 'Reviewed', as: :date) do |work_experience_summary|
-        work_experience_summary.reviewed_at&.strftime('%F')
-      end
+      col :submitted_at, label: 'Submitted', as: :date
+      col :reviewed_at, label: 'Reviewed', as: :date, visible: false
+      col :approved_at, label: 'Approved', as: :date, visible: false
+      col :declined_at, label: 'Declined', as: :date, visible: false
 
       col :mentor_recommendation, label: "#{work_experience_mentor_label} Recommendation", search: work_experience_recommendation_collection(), visible: false
       col :mentor_comments, label: "#{work_experience_mentor_label} Comments", visible: false

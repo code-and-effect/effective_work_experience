@@ -87,6 +87,8 @@ module EffectiveWorkExperienceSummary
 
       submitted_at          :datetime
       reviewed_at           :datetime
+      approved_at           :datetime
+      declined_at           :datetime
 
       # Acts as Wizard
       wizard_steps          :text, permitted: false
@@ -102,7 +104,7 @@ module EffectiveWorkExperienceSummary
 
     scope :in_progress, -> { where(status: :draft) }
     scope :in_progress_for, ->(user) { where(user: user, status: :draft) }
-    scope :done, -> { where(status: [:submitted, :reviewed, :approved, :declined]) }
+    scope :done, -> { where.not(status: :draft) }
 
     before_validation do
       # Only assign from the user when they have the association. Otherwise leave whatever was assigned.
@@ -272,6 +274,8 @@ module EffectiveWorkExperienceSummary
       "#{EffectiveResources.et(self.class)} has been submitted."
     when 'approved'
       "#{EffectiveResources.et(self.class)} has been approved."
+    when 'auto_approved'
+      "#{EffectiveResources.et(self.class)} has been automatically approved."
     when 'declined'
       "#{EffectiveResources.et(self.class)} has been declined."
     when 'reviewed'
@@ -322,12 +326,13 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless try(:was_reviewed?) || mentor.blank? || importing
+    unless reviewed_at.present? || mentor.blank? || importing
       after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
-    try(:reviewed!)
+
+    respond_to?(:reviewed!) ? reviewed! : update!(reviewed_at: Time.zone.now)
 
     try_approve_or_decline!
     true
@@ -338,24 +343,26 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed_two] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless try(:was_reviewed?) || supervisor.blank? || importing
+    unless reviewed_at.present? || supervisor.blank? || importing
       after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
-    try(:reviewed!)
+
+    respond_to?(:reviewed!) ? reviewed! : update!(reviewed_at: Time.zone.now)
 
     try_approve_or_decline!
     true
   end
 
-  # The first recommendation approves, the second declines. Other choices remain reviewed.
+  # The first recommendation approves, the last declines. Other choices remain submitted.
   # Only tenants declaring these optional statuses opt into a final determination.
   def try_approve_or_decline!
-    return unless was_submitted?
     return true unless all_statuses.include?(:approved) && all_statuses.include?(:declined)
+    return true unless submitted?
 
-    recommendations = [mentor_recommendation, (supervisor_recommendation if EffectiveWorkExperience.use_supervisor?)]
+    recommendations = [mentor_recommendation]
+    recommendations << supervisor_recommendation if EffectiveWorkExperience.use_supervisor?
 
     # Any recommend decline declines
     if recommendations.any? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).last }

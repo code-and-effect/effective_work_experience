@@ -1,9 +1,18 @@
 = render 'layout' do
   = render 'effective/work_experience_summaries/content', resource: resource
-  - raise('expected a reviewed work experience summary') unless resource.was_reviewed?
+  - raise('expected a reviewed work experience summary') unless resource.has_completed_step?(:review)
 
-  .alert.alert-success.mb-4
-    This #{etd(resource.class)} was reviewed on #{resource.reviewed_at.strftime('%F')}
+  - if resource.reviewed_at.present?
+    .alert.alert-info.mb-4
+      This #{etd(resource.class)} was reviewed on #{resource.reviewed_at.strftime('%F')}
+
+  - if resource.approved_at.present?
+    .alert.alert-success.mb-4
+      This #{etd(resource.class)} was approved on #{resource.approved_at.strftime('%F')}
+
+  - if resource.declined_at.present?
+    .alert.alert-warning.mb-4
+      This #{etd(resource.class)} was declined on #{resource.declined_at.strftime('%F')}
 
   = render('effective/work_experience_summaries/work_experience_summary', work_experience_summary: resource)
 

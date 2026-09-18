@@ -41,9 +41,9 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
       work_experience_summary.submitted_at&.strftime('%F') || 'Incomplete'
     end
 
-    col(:reviewed_at, label: 'Reviewed', as: :date) do |work_experience_summary|
-      work_experience_summary.reviewed_at&.strftime('%F') || 'Not yet reviewed'
-    end
+    col :reviewed_at, label: 'Reviewed', as: :date, visible: false
+    col :approved_at, label: 'Approved', as: :date, visible: false
+    col :declined_at, label: 'Declined', as: :date, visible: false
 
     actions_col(show: false) do |work_experience_summary|
       if work_experience_summary.draft? && EffectiveResources.authorized?(self, :update, work_experience_summary)

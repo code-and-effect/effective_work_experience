@@ -79,7 +79,10 @@
         %th Submitted
         %td= work_experience_summary.submitted_at.strftime('%F')
 
-    - if work_experience_summary.was_reviewed?
-      %tr
-        %th Reviewed
-        %td= work_experience_summary.reviewed_at.strftime('%F')
+    - [:reviewed, :approved, :declined, :auto_approved].each do |status|
+      - next unless work_experience_summary.all_statuses.include?(status)
+      - timestamp = work_experience_summary.public_send("#{status}_at")
+      - if timestamp.present?
+        %tr
+          %th= status.to_s.humanize
+          %td= timestamp.strftime('%F')
