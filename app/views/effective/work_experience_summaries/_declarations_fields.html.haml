@@ -1,0 +1,5 @@
+- f.object.declare_truth = f.object.has_completed_step?(:declarations)
+- reviewers = EffectiveWorkExperience.use_supervisor? ? "#{work_experience_supervisor_label} and #{work_experience_mentor_label}" : work_experience_mentor_label
+
+= f.check_box :declare_truth,
+  label: "By submitting this #{et(f.object.class)} I affirm and attest that all information is true and accurate. I understand that my #{reviewers} will be notified to review and approve these logs."

@@ -146,6 +146,10 @@ module EffectiveWorkExperienceSummary
       errors.add(:end_on, "must be #{summary_months} months after start date") unless (end_on.month - start_on.month) == (summary_months - 1)
     end
 
+    with_options(if: -> { current_step == :declarations }) do
+      validates :declare_truth, acceptance: true
+    end
+
     with_options(if: -> { current_step == :review }) do
       validates :mentor_recommendation, presence: true
     end
@@ -191,7 +195,7 @@ module EffectiveWorkExperienceSummary
 
   # The intern completes the first half of the wizard, the mentor completes the second half
   def intern_steps
-    [:start, :records, :projects, :submit, :submitted, :reviewed, :reviewed_two]
+    [:start, :records, :projects, :declarations, :submit, :submitted, :reviewed, :reviewed_two]
   end
 
   def mentor_steps
