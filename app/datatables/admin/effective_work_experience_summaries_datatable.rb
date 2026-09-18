@@ -5,6 +5,8 @@ module Admin
       scope :draft
       scope :submitted
       scope :reviewed
+      scope :approved if EffectiveWorkExperience.WorkExperienceSummary::STATUSES.include?(:approved)
+      scope :declined if EffectiveWorkExperience.WorkExperienceSummary::STATUSES.include?(:declined)
     end
 
     datatable do

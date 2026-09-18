@@ -59,9 +59,6 @@ module EffectiveWorkExperienceSummary
       reviewed_two: 'Reviewed'
     )
 
-    # The mentor review step
-    attr_accessor :approve_work_experience_summary
-
     # Set to true when importing historic data. Skips sending emails.
     attr_accessor :importing
 
@@ -100,7 +97,7 @@ module EffectiveWorkExperienceSummary
 
     scope :in_progress, -> { where(status: :draft) }
     scope :in_progress_for, ->(user) { where(user: user, status: :draft) }
-    scope :done, -> { where(status: [:submitted, :reviewed]) }
+    scope :done, -> { where(status: [:submitted, :reviewed, :approved, :declined]) }
 
     before_validation do
       # Only assign from the user when they have the association. Otherwise leave whatever was assigned.
@@ -121,14 +118,6 @@ module EffectiveWorkExperienceSummary
       assign_attributes(total_hours: calculate_total_hours)
     end
 
-    before_validation(if: -> { current_step == :review }) do
-      assign_attributes(mentor_recommendation: recommendations.first) if approve_work_experience_summary
-    end
-
-    before_validation(if: -> { current_step == :review_two }) do
-      assign_attributes(supervisor_recommendation: recommendations.first) if approve_work_experience_summary
-    end
-
     validates :start_on, presence: true, uniqueness: { scope: [:user_id, :user_type] }
     validates :end_on, presence: true
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0, allow_blank: true }
@@ -143,12 +132,10 @@ module EffectiveWorkExperienceSummary
     end
 
     with_options(if: -> { current_step == :review }) do
-      validates :approve_work_experience_summary, acceptance: true
       validates :mentor_recommendation, presence: true
     end
 
     with_options(if: -> { current_step == :review_two }) do
-      validates :approve_work_experience_summary, acceptance: true
       validates :supervisor_recommendation, presence: true
     end
 
@@ -243,6 +230,22 @@ module EffectiveWorkExperienceSummary
     mentor.present? || user.try(:work_experience_outside_mentor?).present?
   end
 
+  def mentor_approved?
+    mentor_recommendation == Array(EffectiveWorkExperience.recommendations).first
+  end
+
+  def mentor_declined?
+    mentor_recommendation == Array(EffectiveWorkExperience.recommendations).last
+  end
+
+  def supervisor_approved?
+    supervisor_recommendation == Array(EffectiveWorkExperience.recommendations).first
+  end
+
+  def supervisor_declined?
+    supervisor_recommendation == Array(EffectiveWorkExperience.recommendations).last
+  end
+
   def total_hours_to_date
     user.work_experience_total_hours_to_date(month: end_on)
   end
@@ -257,6 +260,10 @@ module EffectiveWorkExperienceSummary
       "#{EffectiveResources.et(self.class)} has not yet been submitted."
     when 'submitted'
       "#{EffectiveResources.et(self.class)} has been submitted."
+    when 'approved'
+      "#{EffectiveResources.et(self.class)} has been approved."
+    when 'declined'
+      "#{EffectiveResources.et(self.class)} has been declined."
     when 'reviewed'
       reviewers = [
         (EffectiveResources.et('effective_work_experience.mentor') if mentor_recommendation.present?),
@@ -314,6 +321,8 @@ module EffectiveWorkExperienceSummary
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
     reviewed!
+
+    try_approve_or_decline!
   end
 
   def review_two!
@@ -327,6 +336,36 @@ module EffectiveWorkExperienceSummary
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
     reviewed!
+
+    try_approve_or_decline!
+  end
+
+  # The first recommendation approves, the second declines. Other choices remain reviewed.
+  # Only tenants declaring these optional statuses opt into a final determination.
+  def try_approve_or_decline!
+    return true unless reviewed?
+    return true unless all_statuses.include?(:approved) && all_statuses.include?(:declined)
+
+    recommendations = [mentor_recommendation, (supervisor_recommendation if EffectiveWorkExperience.use_supervisor?)]
+
+    if recommendations.any? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).last }
+      return approve!
+    end
+
+    if recommendations.all? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).first }
+      return decline!
+    end
+
+    # Stay reviewed
+    true
+  end
+
+  def approve!
+    approved!
+  end
+
+  def decline!
+    declined!
   end
 
   private

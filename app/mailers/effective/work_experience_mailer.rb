@@ -2,7 +2,7 @@ module Effective
   class WorkExperienceMailer < EffectiveWorkExperience.parent_mailer_class
 
     include EffectiveMailer
-    include EffectiveEmailTemplatesMailer if EffectiveWorkExperience.use_effective_email_templates
+    include EffectiveEmailTemplatesMailer
 
     def work_experience_summary_submitted(resource, opts = {})
       @assigns = work_experience_summary_assigns(resource)

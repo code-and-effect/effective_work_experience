@@ -151,7 +151,7 @@ class WorkExperienceTest < ActiveSupport::TestCase
     work_experience_summary.submit!
 
     work_experience_summary.assign_attributes(
-      approve_work_experience_summary: true,
+      mentor_recommendation: work_experience_summary.recommendations.first,
       mentor_comments: 'Mentor notes',
       supervisor_recommendation: 'Recommend Decline',
       supervisor_comments: 'Supervisor notes'
