@@ -136,6 +136,9 @@ module EffectiveWorkExperienceSummary
 
     validate(if: -> { user.present? }) do
       errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.mentor').downcase}") unless mentor_present?
+      if EffectiveWorkExperience.use_supervisor? && supervisor.blank?
+        errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.supervisor').downcase}")
+      end
     end
 
     validate(if: -> { start_on.present? && end_on.present? }) do
@@ -359,7 +362,7 @@ module EffectiveWorkExperienceSummary
   # Only tenants declaring these optional statuses opt into a final determination.
   def try_approve_or_decline!
     return true unless all_statuses.include?(:approved) && all_statuses.include?(:declined)
-    return true unless submitted?
+    return true unless was_submitted?
 
     recommendations = [mentor_recommendation]
     recommendations << supervisor_recommendation if EffectiveWorkExperience.use_supervisor?
@@ -368,6 +371,8 @@ module EffectiveWorkExperienceSummary
     if recommendations.any? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).last }
       return decline!
     end
+
+    return true unless submitted?
 
     # Any recommend approve approves
     if recommendations.all? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).first }
