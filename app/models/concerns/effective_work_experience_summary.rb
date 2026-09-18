@@ -301,10 +301,7 @@ module EffectiveWorkExperienceSummary
   def submit!
     raise('already submitted') if was_submitted?
 
-    wizard_steps[:start] ||= Time.zone.now
-    wizard_steps[:records] ||= Time.zone.now
-    wizard_steps[:projects] ||= Time.zone.now
-    wizard_steps[:submit] ||= Time.zone.now
+    all_steps_before(:submitted).each { |step| wizard_steps[step] ||= Time.zone.now }
     wizard_steps[:submitted] = Time.zone.now
 
     if mentor.present? && !importing
@@ -325,14 +322,15 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless was_reviewed? || mentor.blank? || importing
+    unless try(:was_reviewed?) || mentor.blank? || importing
       after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
-    reviewed!
+    try(:reviewed!)
 
     try_approve_or_decline!
+    true
   end
 
   def review_two!
@@ -340,20 +338,21 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed_two] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless was_reviewed? || supervisor.blank? || importing
+    unless try(:was_reviewed?) || supervisor.blank? || importing
       after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
-    reviewed!
+    try(:reviewed!)
 
     try_approve_or_decline!
+    true
   end
 
   # The first recommendation approves, the second declines. Other choices remain reviewed.
   # Only tenants declaring these optional statuses opt into a final determination.
   def try_approve_or_decline!
-    return true unless reviewed?
+    return unless was_submitted?
     return true unless all_statuses.include?(:approved) && all_statuses.include?(:declined)
 
     recommendations = [mentor_recommendation, (supervisor_recommendation if EffectiveWorkExperience.use_supervisor?)]
@@ -368,7 +367,7 @@ module EffectiveWorkExperienceSummary
       return approve!
     end
 
-    # Stay reviewed
+    # Stay reviewed or submitted
     true
   end
 
