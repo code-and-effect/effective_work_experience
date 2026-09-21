@@ -15,6 +15,7 @@ module EffectiveWorkExperience
       :work_experience_summary_class_name,
 
       :layout, :mode, :categories, :recommendations, :summary_months, :use_supervisor, :show_reviews_to_intern,
+      :reminder_cc,
       :mailer, :parent_mailer, :deliver_method, :mailer_layout, :mailer_sender, :mailer_admin, :mailer_subject
     ]
   end

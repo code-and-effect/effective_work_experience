@@ -69,6 +69,12 @@ module Effective
       errors.add(:month, 'must be the first day of the month') unless month.day == 1
     end
 
+    validate(if: -> { user.present? && month.present? && (new_record? || will_save_change_to_total_hours? || will_save_change_to_month?) }) do
+      if user.work_experience_summaries.done.where(start_on: month.beginning_of_quarter).exists?
+        errors.add(:month, 'belongs to a submitted work experience summary')
+      end
+    end
+
     scope :sorted, -> { order(:month) }
     scope :deep, -> { includes(:user, work_experience_entries: { work_experience_subcategory: :work_experience_category }) }
     scope :during, ->(months) { where(month: months) }

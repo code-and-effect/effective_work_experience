@@ -106,6 +106,10 @@ module EffectiveWorkExperienceSummary
     scope :in_progress_for, ->(user) { where(user: user, status: :draft) }
     scope :done, -> { where.not(status: :draft) }
 
+    # Disabled by default. To be implemented by tenant
+    scope :needs_reminder, -> { none }
+    scope :needs_auto_approval, -> { none }
+
     before_validation do
       # Only assign from the user when they have the association. Otherwise leave whatever was assigned.
       assign_attributes(mentor: user.try(:work_experience_mentor), supervisor: user.try(:work_experience_supervisor))
@@ -310,6 +314,7 @@ module EffectiveWorkExperienceSummary
   end
 
   def submit!
+    raise('submitted status is not supported') unless all_statuses.include?(:submitted)
     raise('already submitted') if was_submitted?
 
     all_steps_before(:submitted).each { |step| wizard_steps[step] ||= Time.zone.now }
@@ -332,6 +337,7 @@ module EffectiveWorkExperienceSummary
   end
 
   def unsubmit!
+    raise('draft status is not supported') unless all_statuses.include?(:draft)
     raise('cannot unsubmit this work experience summary') unless was_submitted?
 
     work_experience_records.each do |record|
@@ -356,7 +362,7 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless importing || reviewed_at.present? || mentor.blank? || mentor_declined?
+    unless importing || reviewed_at.present? || mentor.blank? || (all_statuses.include?(:declined) && mentor_declined?)
       after_commit { send_email(:work_experience_summary_reviewed) }
     end
 
@@ -373,7 +379,7 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed_two] = Time.zone.now
 
     # The first review notifies the intern; a decline sends its own email instead.
-    unless importing|| reviewed_at.present? || supervisor.blank? || supervisor_declined?
+    unless importing || reviewed_at.present? || supervisor.blank? || (all_statuses.include?(:declined) && supervisor_declined?)
       after_commit { send_email(:work_experience_summary_reviewed_two) }
     end
 
@@ -396,14 +402,14 @@ module EffectiveWorkExperienceSummary
 
     # Any recommend decline declines
     if recommendations.any? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).last }
-      return decline!
+      return decline! unless declined?
     end
 
     return true unless submitted?
 
     # Any recommend approve approves
     if recommendations.all? { |recommendation| recommendation == Array(EffectiveWorkExperience.recommendations).first }
-      return approve!
+      return approve! unless approved?
     end
 
     # Stay reviewed or submitted
@@ -411,11 +417,41 @@ module EffectiveWorkExperienceSummary
   end
 
   def approve!
+    raise('approved status is not supported') unless all_statuses.include?(:approved)
     approved!
   end
 
+  def auto_approve!
+    raise('auto_approved status is not supported') unless all_statuses.include?(:auto_approved)
+
+    work_experience_records.reject(&:was_reviewed?).each(&:reviewed!)
+
+    assign_attributes(reviewed_at: Time.zone.now)
+
+    auto_approved!
+  end
+
   def decline!
-    after_commit { send_email(:work_experience_summary_declined) } unless importing
+    raise('declined status is not supported') unless all_statuses.include?(:declined)
+    after_commit { send_email(:work_experience_summary_declined) } unless importing || declined?
+    declined!
+  end
+
+  def mark_as_submitted!
+    raise('submitted status is not supported') unless all_statuses.include?(:submitted)
+    raise('already submitted') if submitted?
+    submitted!
+  end
+
+  def mark_as_approved!
+    raise('approved status is not supported') unless all_statuses.include?(:approved)
+    raise('already approved') if approved?
+    approved!
+  end
+
+  def mark_as_declined!
+    raise('declined status is not supported') unless all_statuses.include?(:declined)
+    raise('already declined') if declined?
     declined!
   end
 

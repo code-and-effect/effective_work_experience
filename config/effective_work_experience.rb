@@ -22,6 +22,9 @@ EffectiveWorkExperience.setup do |config|
   # Show completed mentor and supervisor reviews to the intern
   config.show_reviews_to_intern = false
 
+  # Optional CC address for daily summary reminders.
+  # config.reminder_cc = nil
+
   # Layout Settings
   # Configure the Layout per controller, or all at once
   # config.layout = { application: 'application', admin: 'admin' }

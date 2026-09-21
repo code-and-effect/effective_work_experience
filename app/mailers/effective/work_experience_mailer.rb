@@ -29,7 +29,32 @@ module Effective
       mail(to: resource.user.email, **headers_for(resource, opts))
     end
 
+    def work_experience_summary_reminder_end_of_quarter(resource, opts = {})
+      @assigns = work_experience_summary_assigns(resource)
+      mail(to: resource.user.email, cc: EffectiveWorkExperience.reminder_cc, **headers_for(resource, opts))
+    end
+
+    def work_experience_summary_reminder_due(resource, opts = {})
+      @assigns = work_experience_summary_assigns(resource)
+      mail(to: resource.user.email, cc: reminder_reviewer_emails(resource), **headers_for(resource, opts))
+    end
+
+    def work_experience_summary_reminder_late_daily(resource, opts = {})
+      @assigns = work_experience_summary_assigns(resource)
+      mail(to: resource.user.email, cc: EffectiveWorkExperience.reminder_cc, **headers_for(resource, opts))
+    end
+
+    def work_experience_summary_reminder_late_biweekly(resource, opts = {})
+      @assigns = work_experience_summary_assigns(resource)
+      mail(to: resource.user.email, cc: reminder_reviewer_emails(resource), **headers_for(resource, opts))
+    end
+
     protected
+
+    def reminder_reviewer_emails(resource)
+      user = resource.user
+      [user.try(:work_experience_mentor)&.email, user.try(:work_experience_supervisor)&.email, EffectiveWorkExperience.reminder_cc].compact.uniq
+    end
 
     def assigns_for(resource)
       return work_experience_summary_assigns(resource) if resource.class.try(:effective_work_experience_summary?)
@@ -52,6 +77,8 @@ module Effective
         supervisor_label: EffectiveResources.et('effective_work_experience.supervisor').downcase,
         summary_label: EffectiveResources.et(EffectiveWorkExperience.WorkExperienceSummary).downcase,
         period: resource.period,
+        quarter: "Q#{resource.quarter}",
+        days_overdue: (Time.zone.today - (resource.end_on + 15.days)).to_i,
         url: link_to(effective_work_experience.work_experience_summary_url(resource))
       }
     end

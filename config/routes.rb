@@ -25,6 +25,9 @@ EffectiveWorkExperience::Engine.routes.draw do
     resources :work_experience_reports, only: [:index, :show]
     resources :work_experience_summaries, only: [:index, :show, :edit, :update, :destroy] do
       post :unsubmit, on: :member
+      post :mark_as_submitted, on: :member
+      post :mark_as_approved, on: :member
+      post :mark_as_declined, on: :member
     end
   end
 
