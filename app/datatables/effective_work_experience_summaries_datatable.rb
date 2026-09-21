@@ -7,7 +7,7 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
     col :created_at, visible: false
     col :user, visible: false
 
-    if EffectiveWorkExperience.mode == :hours_log
+    if EffectiveWorkExperience.hours_log?
       col :start_on, search: work_experience_summary_start_on_collection(), visible: false
       col :end_on, visible: false
       col :period, visible: false

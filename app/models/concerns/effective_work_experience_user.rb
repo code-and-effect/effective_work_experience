@@ -105,7 +105,7 @@ module EffectiveWorkExperienceUser
 
   # One subcategory and month
   def work_experience_hours(month:, work_experience_subcategory: nil)
-    if EffectiveWorkExperience.mode == :hours_log
+    if EffectiveWorkExperience.hours_log?
       records = work_experience_records.select { |record| record.month == month }
       records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
       return records.sum { |record| record.total_hours.to_f }.round(2)
@@ -128,7 +128,7 @@ module EffectiveWorkExperienceUser
     work_experience_records_in_year = work_experience_records.select { |record| record.month.present? && record.month.year == year }
     return 0.0 if work_experience_records_in_year.blank?
 
-    if EffectiveWorkExperience.mode == :hours_log
+    if EffectiveWorkExperience.hours_log?
       records = work_experience_records_in_year
       records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
       return records.sum { |record| record.total_hours.to_f }.round(2)
@@ -153,7 +153,7 @@ module EffectiveWorkExperienceUser
 
     return 0.0 if work_experience_records_to_date.blank?
 
-    if EffectiveWorkExperience.mode == :hours_log
+    if EffectiveWorkExperience.hours_log?
       records = work_experience_records_to_date
       records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
       return records.sum { |record| record.total_hours.to_f }.round(2)

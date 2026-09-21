@@ -19,6 +19,9 @@ EffectiveWorkExperience.setup do |config|
   # The recommendations a mentor may make when reviewing a work experience summary
   config.recommendations = ['Recommend Approve', 'Recommend Decline']
 
+  # Show completed mentor and supervisor reviews to the intern
+  config.show_reviews_to_intern = false
+
   # Layout Settings
   # Configure the Layout per controller, or all at once
   # config.layout = { application: 'application', admin: 'admin' }

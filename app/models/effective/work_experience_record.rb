@@ -42,7 +42,7 @@ module Effective
       timestamps
     end
 
-    before_validation(if: -> { EffectiveWorkExperience.mode == :monthly_grid }) do
+    before_validation(if: -> { EffectiveWorkExperience.monthly_grid? }) do
       assign_attributes(total_hours: work_experience_entries.sum(&:hours).round(2))
     end
 
@@ -55,11 +55,11 @@ module Effective
     validates :month, absence: true, if: -> { backdated }
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0 }
 
-    with_options(if: -> { EffectiveWorkExperience.mode == :monthly_grid }) do
+    with_options(if: -> { EffectiveWorkExperience.monthly_grid? }) do
       validates :month, uniqueness: { scope: [:user_id, :user_type] }
     end
 
-    with_options(if: -> { EffectiveWorkExperience.mode == :hours_log }) do
+    with_options(if: -> { EffectiveWorkExperience.hours_log? }) do
       validates :description, presence: true
       validates :date, presence: true
       validates :work_experience_subcategory, presence: true

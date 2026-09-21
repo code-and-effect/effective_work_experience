@@ -1,5 +1,5 @@
 # One row in a monthly work experience record
-# Used when EffectiveWorkExperience.mode == :monthly_grid only
+# Used when EffectiveWorkExperience.monthly_grid? only
 module Effective
   class WorkExperienceEntry < ActiveRecord::Base
     self.table_name = (EffectiveWorkExperience.work_experience_entries_table_name || :work_experience_entries).to_s

@@ -12,7 +12,7 @@ class EffectiveWorkExperienceRecordsDatatable < Effective::Datatable
       work_experience_record.month&.strftime('%F') || 'Backdated'
     end
 
-    if EffectiveWorkExperience.mode == :hours_log
+    if EffectiveWorkExperience.hours_log?
       col(:work_experience_subcategory, label: 'Category', search: Effective::WorkExperienceSubcategory.all)
       col(:description)
       col(:date, visible: false)
