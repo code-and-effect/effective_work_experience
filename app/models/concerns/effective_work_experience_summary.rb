@@ -316,7 +316,7 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:submitted] = Time.zone.now
 
     if mentor.present? && !importing
-      after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_submitted(self).deliver }
+      after_commit { send_email(:work_experience_summary_submitted) }
     end
 
     work_experience_records.reject(&:was_submitted?).each { |work_experience_record| work_experience_record.submitted! }
@@ -354,7 +354,7 @@ module EffectiveWorkExperienceSummary
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
     unless reviewed_at.present? || mentor.blank? || importing
-      after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
+      after_commit { send_email(:work_experience_summary_reviewed) }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
@@ -371,7 +371,7 @@ module EffectiveWorkExperienceSummary
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
     unless reviewed_at.present? || supervisor.blank? || importing
-      after_commit { EffectiveWorkExperience.mailer_class.work_experience_summary_reviewed(self).deliver }
+      after_commit { send_email(:work_experience_summary_reviewed) }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
@@ -416,6 +416,10 @@ module EffectiveWorkExperienceSummary
   end
 
   private
+
+  def send_email(email)
+    EffectiveWorkExperience.send_email(email, self)
+  end
 
   def calculate_total_hours
     return if user.blank? || start_on.blank? || end_on.blank?
