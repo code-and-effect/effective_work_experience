@@ -328,6 +328,26 @@ module EffectiveWorkExperienceSummary
     true
   end
 
+  def unsubmit!
+    raise('cannot unsubmit this work experience summary') unless was_submitted?
+
+    work_experience_records.each do |record|
+      record.update!(status: :draft, status_steps: {}, submitted_at: nil, reviewed_at: nil)
+    end
+
+    update!(
+      status: :draft,
+      status_steps: {},
+      wizard_steps: {},
+      submitted_at: nil,
+      reviewed_at: nil,
+      approved_at: nil,
+      declined_at: nil,
+      mentor_recommendation: nil,
+      supervisor_recommendation: nil
+    )
+  end
+
   def review!
     wizard_steps[:review] ||= Time.zone.now
     wizard_steps[:reviewed] = Time.zone.now

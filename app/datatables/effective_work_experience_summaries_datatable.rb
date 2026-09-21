@@ -53,6 +53,9 @@ class EffectiveWorkExperienceSummariesDatatable < Effective::Datatable
         end
       else
         dropdown_link_to('Show', effective_work_experience.work_experience_summary_path(work_experience_summary))
+        if EffectiveResources.authorized?(self, :unsubmit, work_experience_summary)
+          dropdown_link_to('Unsubmit', effective_work_experience.unsubmit_work_experience_summary_path(work_experience_summary), 'data-method': :post, 'data-confirm': 'Unsubmit this summary and clear its reviews?')
+        end
       end
     end
   end

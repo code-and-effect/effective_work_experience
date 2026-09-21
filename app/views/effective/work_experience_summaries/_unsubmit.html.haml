@@ -1,0 +1,6 @@
+= card('Unsubmit') do
+  %p You may unsubmit this #{work_experience_summary_label.downcase} to make changes. Its reviews will be cleared.
+
+  %p
+    = link_to 'Unsubmit', effective_work_experience.unsubmit_work_experience_summary_path(work_experience_summary),
+      class: 'btn btn-primary', 'data-method': :post, 'data-confirm': 'Unsubmit this summary and clear its reviews?'

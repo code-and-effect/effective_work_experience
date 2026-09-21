@@ -4,6 +4,8 @@ module Effective
 
     include Effective::WizardController
 
+    on :unsubmit, redirect: -> { effective_work_experience.work_experience_summary_build_path(resource, :start) }
+
     resource_scope -> {
       collection = EffectiveWorkExperience.WorkExperienceSummary.deep
       collection.where(user: current_user).or(collection.where(mentor: current_user)).or(collection.where(supervisor: current_user))

@@ -15,6 +15,9 @@
 
   = render('effective/work_experience_summaries/work_experience_summary', work_experience_summary: resource)
 
+  - if EffectiveResources.authorized?(self, :unsubmit, resource)
+    = render('effective/work_experience_summaries/unsubmit', work_experience_summary: resource)
+
   .mb-4
     - if resource.current_user_intern?
       = link_to "Return to Dashboard", return_to_dashboard_path, class: 'btn btn-lg btn-primary btn-block'
