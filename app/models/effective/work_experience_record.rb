@@ -30,7 +30,7 @@ module Effective
       date                  :date
 
       # There can only be one backdated work experience record
-      backdated             :boolean, default: false
+      backdated             :boolean, default: false, permitted: :admin
 
       # Acts as Statused
       status                :string
