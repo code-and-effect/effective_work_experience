@@ -116,18 +116,14 @@ module EffectiveWorkExperienceSummary
       self.category ||= user.current_work_experience_category
     end
 
-    before_validation do
-      # The admin forms assign the mentor and supervisor id without the polymorphic type
-      assign_attributes(mentor_type: (mentor_type.presence || user&.class&.name)) if mentor_id.present?
-      assign_attributes(supervisor_type: (supervisor_type.presence || user&.class&.name)) if supervisor_id.present?
-
-      assign_attributes(mentor_type: nil) if mentor_id.blank?
-      assign_attributes(supervisor_type: nil) if supervisor_id.blank?
-    end
-
     before_validation(if: -> { start_on.present? }) do
-      assign_attributes(start_on: start_on.beginning_of_quarter, end_on: start_on.end_of_quarter)
-      assign_attributes(year: start_on.year, quarter: start_on.quarter)
+      assign_attributes(
+        start_on: start_on.beginning_of_quarter,
+        end_on: start_on.end_of_quarter,
+        year: start_on.year,
+        quarter: start_on.quarter
+      )
+
       assign_attributes(total_hours: calculate_total_hours)
     end
 
@@ -137,9 +133,10 @@ module EffectiveWorkExperienceSummary
 
     validate(if: -> { user.present? }) do
       errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.mentor').downcase}") unless mentor_present?
-      if EffectiveWorkExperience.use_supervisor? && supervisor.blank?
-        errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.supervisor').downcase}")
-      end
+    end
+
+    validate(if: -> { user.present? && EffectiveWorkExperience.use_supervisor? }) do
+      errors.add(:user, "must have a #{EffectiveResources.et('effective_work_experience.supervisor').downcase}") unless supervisor.present?
     end
 
     validate(if: -> { start_on.present? && end_on.present? }) do
