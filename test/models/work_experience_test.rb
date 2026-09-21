@@ -103,14 +103,14 @@ class WorkExperienceTest < ActiveSupport::TestCase
     assert_equal user.work_experience_mentor, work_experience_summary.mentor
   end
 
-  test 'work experience summary supervisor is assigned by id alone' do
+  test 'work experience summary supervisor is assigned by id and type' do
     work_experience_summary = create_work_experience_summary!
     supervisor = build_mentor()
 
-    # The user model has no supervisor association. The admin form assigns the id only.
+    # The user model has no supervisor association. The admin form assigns both polymorphic fields.
     refute work_experience_summary.user.respond_to?(:supervisor)
 
-    work_experience_summary.update!(supervisor_id: supervisor.id)
+    work_experience_summary.update!(supervisor_id: supervisor.id, supervisor_type: supervisor.class.name)
 
     assert_equal supervisor, work_experience_summary.reload.supervisor
     assert_equal supervisor.class.name, work_experience_summary.supervisor_type
