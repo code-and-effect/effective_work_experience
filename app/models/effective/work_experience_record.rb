@@ -5,6 +5,8 @@ module Effective
 
     belongs_to :user, polymorphic: true
 
+    attr_accessor :importing
+
     # When in Monthly Grid mode only
     has_many :work_experience_entries, -> { order(:id) }, class_name: 'Effective::WorkExperienceEntry', inverse_of: :work_experience_record, dependent: :destroy
     accepts_nested_attributes_for :work_experience_entries, allow_destroy: true
@@ -69,7 +71,7 @@ module Effective
       errors.add(:month, 'must be the first day of the month') unless month.day == 1
     end
 
-    validate(if: -> { user.present? && month.present? && (new_record? || will_save_change_to_total_hours? || will_save_change_to_month?) }) do
+    validate(if: -> { user.present? && month.present? && (new_record? || will_save_change_to_total_hours? || will_save_change_to_month?) }, unless: -> { importing }) do
       if user.work_experience_summaries.done.where(start_on: month.beginning_of_quarter).exists?
         errors.add(:month, 'belongs to a submitted work experience summary')
       end

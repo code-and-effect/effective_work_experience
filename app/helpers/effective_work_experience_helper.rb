@@ -88,10 +88,10 @@ module EffectiveWorkExperienceHelper
     Effective::WorkExperienceSubcategory.all.sorted
   end
 
-  # Display hours with one decimal place
+  # Display hours with the configured number of decimal places.
   def work_experience_hours_to_s(hours)
     return if hours.blank?
-    "%0.1f" % hours
+    number_with_precision(hours, precision: EffectiveWorkExperience.hours_precision || 1)
   end
 
   # Display a collection of every summary period going back 10 years
