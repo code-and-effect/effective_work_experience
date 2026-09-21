@@ -258,7 +258,7 @@ module EffectiveWorkExperienceSummary
   end
 
   def mentor_declined?
-    mentor_recommendation == Array(EffectiveWorkExperience.recommendations).last
+    mentor_recommendation.present? && mentor_recommendation == recommendations.last
   end
 
   def supervisor_approved?
@@ -266,7 +266,7 @@ module EffectiveWorkExperienceSummary
   end
 
   def supervisor_declined?
-    supervisor_recommendation == Array(EffectiveWorkExperience.recommendations).last
+    supervisor_recommendation.present? && supervisor_recommendation == recommendations.last
   end
 
   def total_hours_to_date
@@ -424,11 +424,19 @@ module EffectiveWorkExperienceSummary
   def auto_approve!
     raise('auto_approved status is not supported') unless all_statuses.include?(:auto_approved)
 
-    work_experience_records.reject(&:was_reviewed?).each(&:reviewed!)
+    return unless submitted?
+    return if mentor_declined? || supervisor_declined?
 
-    assign_attributes(reviewed_at: Time.zone.now)
+    transaction do
+      work_experience_records.reject(&:was_reviewed?).each(&:reviewed!)
 
-    auto_approved!
+      self.reviewed_at ||= Time.zone.now
+      try(:reviewed!)
+
+      auto_approved!
+    end
+
+    true
   end
 
   def decline!

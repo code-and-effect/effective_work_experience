@@ -7,7 +7,10 @@
   = link_to(work_experience_report_label.downcase, effective_work_experience.work_experience_report_path(current_user))
   at any time.
 
-%p #{work_experience_interns_label} are required to submit a #{work_experience_record_label.downcase} for each month of their internship. Every #{EffectiveWorkExperience.summary_months} months they are required to submit a #{work_experience_summary_label.downcase}.
+- if EffectiveWorkExperience.hours_log?
+  %p Add a record for each activity, then submit a #{work_experience_summary_label.downcase} for each quarter.
+- else
+  %p #{work_experience_interns_label} are required to submit a #{work_experience_record_label.downcase} for each month of their internship. Every #{EffectiveWorkExperience.summary_months} months they are required to submit a #{work_experience_summary_label.downcase}.
 
 %hr
 
@@ -28,8 +31,12 @@
 %hr
 
 - if EffectiveResources.authorized?(self, :index, Effective::WorkExperienceRecord)
-  %h4 Monthly #{work_experience_records_label}
-  %p Please use the following table to track your monthly #{etsd(Effective::WorkExperienceRecord)}.
+  - if EffectiveWorkExperience.hours_log?
+    %h4= work_experience_records_label
+    %p Add one record for each activity, including the date and hours worked.
+  - else
+    %h4 Monthly #{work_experience_records_label}
+    %p Please use the following table to track your monthly #{etsd(Effective::WorkExperienceRecord)}.
 
   .mb-2
     = collapse("Show #{ets(Effective::WorkExperienceRecord)}") do
@@ -40,7 +47,7 @@
 
   %hr
 
-- if EffectiveResources.authorized?(self, :index, Effective::WorkExperienceProject)
+- if EffectiveWorkExperience.monthly_grid? && EffectiveResources.authorized?(self, :index, Effective::WorkExperienceProject)
   %h4= work_experience_projects_label
   %p Please use the following table to track your #{etsd(Effective::WorkExperienceProject)}.
 

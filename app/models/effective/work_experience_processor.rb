@@ -1,8 +1,8 @@
 module Effective
   class WorkExperienceProcessor
     def process!
-      auto_approve!
       remind!
+      auto_approve!
     end
 
     def remind!
@@ -22,7 +22,11 @@ module Effective
     end
 
     def auto_approve!
-      EffectiveWorkExperience.WorkExperienceSummary.needs_auto_approval.find_each(&:auto_approve!)
+      EffectiveWorkExperience.WorkExperienceSummary.needs_auto_approval.find_each do |summary|
+        summary.auto_approve!
+      rescue => error
+        EffectiveResources.send_error(error, work_experience_summary_id: summary.id)
+      end
     end
 
     private
