@@ -163,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 101) do
   create_table "work_experience_summaries", force: :cascade do |t|
     t.text "admin_notes"
     t.datetime "approved_at", precision: nil
+    t.datetime "auto_approved_at", precision: nil
     t.string "category"
     t.datetime "created_at", null: false
     t.datetime "declined_at", precision: nil

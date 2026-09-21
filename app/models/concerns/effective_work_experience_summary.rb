@@ -90,6 +90,7 @@ module EffectiveWorkExperienceSummary
       submitted_at          :datetime
       reviewed_at           :datetime
       approved_at           :datetime
+      auto_approved_at      :datetime
       declined_at           :datetime
 
       # Acts as Wizard
@@ -347,6 +348,7 @@ module EffectiveWorkExperienceSummary
       submitted_at: nil,
       reviewed_at: nil,
       approved_at: nil,
+      auto_approved_at: nil,
       declined_at: nil,
       mentor_recommendation: nil,
       supervisor_recommendation: nil
