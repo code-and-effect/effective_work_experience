@@ -5,3 +5,7 @@ en:
     intern: 'Intern'
     mentor: 'Mentor'
     supervisor: 'Supervisor'
+
+  activerecord:
+    models:
+      effective/work_experience_summary: 'Work Experience Summary'

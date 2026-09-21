@@ -315,8 +315,11 @@ module EffectiveWorkExperienceSummary
     all_steps_before(:submitted).each { |step| wizard_steps[step] ||= Time.zone.now }
     wizard_steps[:submitted] = Time.zone.now
 
-    if mentor.present? && !importing
-      after_commit { send_email(:work_experience_summary_submitted) }
+    unless importing
+      after_commit do
+        send_email(:work_experience_summary_submitted) if mentor.present?
+        send_email(:work_experience_summary_submitted_two) if supervisor.present?
+      end
     end
 
     work_experience_records.reject(&:was_submitted?).each { |work_experience_record| work_experience_record.submitted! }
@@ -353,7 +356,7 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:reviewed] = Time.zone.now
 
     # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless reviewed_at.present? || mentor.blank? || importing
+    unless importing || reviewed_at.present? || mentor.blank? || mentor_declined?
       after_commit { send_email(:work_experience_summary_reviewed) }
     end
 
@@ -369,9 +372,9 @@ module EffectiveWorkExperienceSummary
     wizard_steps[:review_two] ||= Time.zone.now
     wizard_steps[:reviewed_two] = Time.zone.now
 
-    # If it was previously reviewed, or there is no mentor, we don't want to send an email
-    unless reviewed_at.present? || supervisor.blank? || importing
-      after_commit { send_email(:work_experience_summary_reviewed) }
+    # The first review notifies the intern; a decline sends its own email instead.
+    unless importing|| reviewed_at.present? || supervisor.blank? || supervisor_declined?
+      after_commit { send_email(:work_experience_summary_reviewed_two) }
     end
 
     work_experience_records.reject(&:was_reviewed?).each { |work_experience_record| work_experience_record.reviewed! }
@@ -412,6 +415,7 @@ module EffectiveWorkExperienceSummary
   end
 
   def decline!
+    after_commit { send_email(:work_experience_summary_declined) } unless importing
     declined!
   end
 
