@@ -73,6 +73,8 @@ module EffectiveWorkExperienceSummary
 
       total_hours           :decimal    # The total number of hours worked this period
 
+      admin_notes           :text, permitted: :admin
+
       # Review Step
       mentor_recommendation     :string
       mentor_comments           :text       # Private rolling comments displayed to the mentor
