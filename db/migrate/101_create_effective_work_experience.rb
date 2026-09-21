@@ -34,7 +34,10 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
     create_table :work_experience_records, if_not_exists: true do |t|
       t.integer :user_id
       t.string :user_type
+      t.integer :work_experience_subcategory_id
 
+      t.text :description
+      t.date :date
       t.date :month
       t.decimal :total_hours, precision: 10, scale: 2
 
@@ -80,6 +83,10 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
     end
 
     create_table :work_experience_summaries, if_not_exists: true do |t|
+      t.string :category
+      t.integer :year
+      t.integer :quarter
+
       t.integer :user_id
       t.string :user_type
 
@@ -98,12 +105,17 @@ class CreateEffectiveWorkExperience < ActiveRecord::Migration[6.0]
       t.date :end_on
 
       t.decimal :total_hours, precision: 10, scale: 2
+      t.text :admin_notes
 
-      t.string :recommendation
-      t.text :comments
+      t.string :mentor_recommendation
+      t.text :mentor_comments
+      t.string :supervisor_recommendation
+      t.text :supervisor_comments
 
       t.datetime :submitted_at
       t.datetime :reviewed_at
+      t.datetime :approved_at
+      t.datetime :declined_at
 
       t.string :token
 

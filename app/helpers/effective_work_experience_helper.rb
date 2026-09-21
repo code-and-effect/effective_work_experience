@@ -1,9 +1,97 @@
 module EffectiveWorkExperienceHelper
 
-  # Display hours with one decimal place
+  def work_experience_name_label
+    et('effective_work_experience.name')
+  end
+
+  def work_experience_mentor_label
+    et('effective_work_experience.mentor')
+  end
+
+  def work_experience_mentors_label
+    ets('effective_work_experience.mentor')
+  end
+
+  def work_experience_intern_label
+    et('effective_work_experience.intern')
+  end
+
+  def work_experience_interns_label
+    ets('effective_work_experience.intern')
+  end
+
+  def work_experience_supervisor_label
+    et('effective_work_experience.supervisor')
+  end
+
+  def work_experience_supervisors_label
+    ets('effective_work_experience.supervisor')
+  end
+
+  def work_experience_record_label
+    et(Effective::WorkExperienceRecord)
+  end
+
+  def work_experience_records_label
+    ets(Effective::WorkExperienceRecord)
+  end
+
+  def work_experience_entry_label
+    et(Effective::WorkExperienceEntry)
+  end
+
+  def work_experience_entries_label
+    ets(Effective::WorkExperienceEntry)
+  end
+
+  def work_experience_project_label
+    et(Effective::WorkExperienceProject)
+  end
+
+  def work_experience_projects_label
+    ets(Effective::WorkExperienceProject)
+  end
+
+  def work_experience_summary_label
+    et(EffectiveWorkExperience.WorkExperienceSummary)
+  end
+
+  def work_experience_summaries_label
+    ets(EffectiveWorkExperience.WorkExperienceSummary)
+  end
+
+  def work_experience_report_label
+    et(Effective::WorkExperienceReport)
+  end
+
+  def work_experience_reports_label
+    ets(Effective::WorkExperienceReport)
+  end
+
+  def work_experience_category_label
+    et(Effective::WorkExperienceCategory)
+  end
+
+  def work_experience_categories_label
+    ets(Effective::WorkExperienceCategory)
+  end
+
+  def work_experience_subcategory_label
+    et(Effective::WorkExperienceSubcategory)
+  end
+
+  def work_experience_subcategories_label
+    ets(Effective::WorkExperienceSubcategory)
+  end
+
+  def work_experience_subcategories_collection
+    Effective::WorkExperienceSubcategory.all.sorted
+  end
+
+  # Display hours with the configured number of decimal places.
   def work_experience_hours_to_s(hours)
     return if hours.blank?
-    "%0.1f" % hours
+    number_with_precision(hours, precision: EffectiveWorkExperience.hours_precision || 1)
   end
 
   # Display a collection of every summary period going back 10 years

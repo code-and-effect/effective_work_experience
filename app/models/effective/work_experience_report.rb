@@ -10,11 +10,15 @@ module Effective
     end
 
     def to_param
-      user&.to_param
+      user.try(:to_param)
     end
 
     def mentor
-      user&.try(:work_experience_mentor)
+      user.try(:work_experience_mentor)
+    end
+
+    def supervisor
+      user.try(:work_experience_supervisor)
     end
 
     def backdated_work_experience_record

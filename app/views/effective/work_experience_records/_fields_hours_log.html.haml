@@ -1,0 +1,14 @@
+= f.hide_if(:backdated, true) do
+  .row
+    .col-lg-6= f.date_field :month, hint: 'Please select the first day of the month that applies to these hours'
+  %hr
+
+- if local_assigns[:namespace] == :admin
+  = f.check_box :backdated, label: "Backdated #{et(f.object)}", hint: "Admin only. This allows admins to contribute hours to each #{work_experience_category_label.downcase}, which essentially reduces total required hours."
+
+= f.select :work_experience_subcategory_id, work_experience_subcategories_collection
+= f.text_area :description
+
+.row
+  .col= f.date_field :date
+  .col= f.float_field :total_hours, label: 'Hours'

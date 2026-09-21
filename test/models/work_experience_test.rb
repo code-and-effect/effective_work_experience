@@ -15,7 +15,7 @@ class WorkExperienceTest < ActiveSupport::TestCase
     work_experience_record = create_work_experience_record!
 
     subcategories = Effective::WorkExperienceSubcategory.count
-    assert_equal subcategories, work_experience_record.work_experience_subcategories.count
+    assert_equal subcategories, work_experience_record.work_experience_entries.count
     assert work_experience_record.work_experience_entries.all? { |work_experience_entry| work_experience_entry.hours == 15 }
     assert_equal (15 * subcategories), work_experience_record.total_hours
   end
@@ -26,6 +26,63 @@ class WorkExperienceTest < ActiveSupport::TestCase
 
     assert work_experience_record.valid?
     assert_equal Time.zone.now.beginning_of_month.to_date, work_experience_record.month
+  end
+
+  test 'monthly grid records require a unique month for each intern' do
+    record = create_work_experience_record!
+    duplicate = build_work_experience_record(user: record.user, month: record.month)
+
+    refute duplicate.valid?
+    assert duplicate.errors[:month].present?
+  end
+
+  test 'hours log records preserve entered hours and allow multiple records in a month' do
+    original_mode = EffectiveWorkExperience.mode
+    EffectiveWorkExperience.mode = :hours_log
+    user = build_intern()
+    date = Date.current
+    subcategory = Effective::WorkExperienceSubcategory.sorted.first
+
+    first = user.work_experience_records.create!(month: date, date: date, description: 'Site planning', total_hours: 2.5, work_experience_subcategory: subcategory)
+    second = user.work_experience_records.create!(month: date, date: date, description: 'Design review', total_hours: 1.25, work_experience_subcategory: subcategory)
+
+    assert_equal date, first.reload.date
+    assert_equal subcategory, first.work_experience_subcategory
+    assert_equal 'Site planning', first.description
+    assert_equal date.beginning_of_month, first.month
+    assert_equal 2.5, first.total_hours
+    assert_equal 1.25, second.reload.total_hours
+    assert_equal 3.75, user.work_experience_hours(month: date.beginning_of_month)
+    assert_equal 3.75, user.work_experience_hours_by_year(year: date.year)
+    assert_equal 3.75, user.work_experience_total_hours_to_date(month: date.beginning_of_month)
+
+    summary = EffectiveWorkExperience.WorkExperienceSummary.new(user: user, start_on: date)
+    assert summary.valid?, summary.errors.full_messages.to_sentence
+    assert_equal 3.75, summary.total_hours
+  ensure
+    EffectiveWorkExperience.mode = original_mode
+  end
+
+  test 'hours log records require description date and subcategory' do
+    original_mode = EffectiveWorkExperience.mode
+    EffectiveWorkExperience.mode = :hours_log
+    record = Effective::WorkExperienceRecord.new(user: build_intern(), month: Date.current, total_hours: 2.5)
+
+    refute record.valid?
+    assert record.errors[:description].present?
+    assert record.errors[:date].present?
+    assert record.errors[:work_experience_subcategory].present?
+  ensure
+    EffectiveWorkExperience.mode = original_mode
+  end
+
+  test 'monthly grid records do not require description date or a record subcategory' do
+    record = build_work_experience_record()
+
+    assert_nil record.description
+    assert_nil record.date
+    assert_nil record.work_experience_subcategory
+    assert record.valid?, record.errors.full_messages.to_sentence
   end
 
   test 'work experience summary' do
@@ -46,14 +103,14 @@ class WorkExperienceTest < ActiveSupport::TestCase
     assert_equal user.work_experience_mentor, work_experience_summary.mentor
   end
 
-  test 'work experience summary supervisor is assigned by id alone' do
+  test 'work experience summary supervisor is assigned by id and type' do
     work_experience_summary = create_work_experience_summary!
     supervisor = build_mentor()
 
-    # The user model has no supervisor association. The admin form assigns the id only.
+    # The user model has no supervisor association. The admin form assigns both polymorphic fields.
     refute work_experience_summary.user.respond_to?(:supervisor)
 
-    work_experience_summary.update!(supervisor_id: supervisor.id)
+    work_experience_summary.update!(supervisor_id: supervisor.id, supervisor_type: supervisor.class.name)
 
     assert_equal supervisor, work_experience_summary.reload.supervisor
     assert_equal supervisor.class.name, work_experience_summary.supervisor_type
@@ -93,12 +150,22 @@ class WorkExperienceTest < ActiveSupport::TestCase
     work_experience_summary = create_work_experience_summary!()
     work_experience_summary.submit!
 
-    work_experience_summary.assign_attributes(recommendation: 'Recommend Approve')
+    work_experience_summary.assign_attributes(
+      mentor_recommendation: work_experience_summary.recommendations.first,
+      mentor_comments: 'Mentor notes',
+      supervisor_recommendation: 'Recommend Decline',
+      supervisor_comments: 'Supervisor notes'
+    )
 
     assert_email(count: 1) { work_experience_summary.review! }
 
     assert work_experience_summary.was_reviewed?
     assert work_experience_summary.reviewed?
+    work_experience_summary.reload
+    assert_equal work_experience_summary.recommendations.first, work_experience_summary.mentor_recommendation
+    assert_equal 'Mentor notes', work_experience_summary.mentor_comments
+    assert_equal 'Recommend Decline', work_experience_summary.supervisor_recommendation
+    assert_equal 'Supervisor notes', work_experience_summary.supervisor_comments
 
     assert work_experience_summary.work_experience_records.all? { |work_experience_record| work_experience_record.was_reviewed? }
   end

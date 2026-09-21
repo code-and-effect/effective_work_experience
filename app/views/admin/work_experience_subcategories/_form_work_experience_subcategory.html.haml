@@ -3,7 +3,7 @@
 
   = f.text_field :title
 
-  = f.number_field :minimum_hours, hint: 'Guidance target hours for this subcategory over the intern period'
+  = f.number_field :minimum_hours, hint: "Guidance target hours for this #{work_experience_subcategory_label.downcase} over the #{work_experience_intern_label.downcase} period"
 
   = f.article_editor :body
 

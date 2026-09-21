@@ -81,6 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 101) do
     t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
     t.integer "work_experience_mentor_id"
+    t.integer "work_experience_supervisor_id"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
@@ -135,6 +136,8 @@ ActiveRecord::Schema[8.1].define(version: 101) do
   create_table "work_experience_records", force: :cascade do |t|
     t.boolean "backdated", default: false
     t.datetime "created_at", null: false
+    t.date "date"
+    t.text "description"
     t.date "month"
     t.datetime "reviewed_at", precision: nil
     t.string "status"
@@ -144,6 +147,7 @@ ActiveRecord::Schema[8.1].define(version: 101) do
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.string "user_type"
+    t.integer "work_experience_subcategory_id"
     t.index ["user_id", "user_type"], name: "index_work_experience_records_on_user_id_and_user_type"
   end
 
@@ -157,18 +161,25 @@ ActiveRecord::Schema[8.1].define(version: 101) do
   end
 
   create_table "work_experience_summaries", force: :cascade do |t|
-    t.text "comments"
+    t.text "admin_notes"
+    t.datetime "approved_at", precision: nil
+    t.string "category"
     t.datetime "created_at", null: false
+    t.datetime "declined_at", precision: nil
     t.date "end_on"
+    t.text "mentor_comments"
     t.integer "mentor_id"
+    t.string "mentor_recommendation"
     t.string "mentor_type"
-    t.string "recommendation"
+    t.integer "quarter"
     t.datetime "reviewed_at", precision: nil
     t.date "start_on"
     t.string "status"
     t.text "status_steps"
     t.datetime "submitted_at", precision: nil
+    t.text "supervisor_comments"
     t.integer "supervisor_id"
+    t.string "supervisor_recommendation"
     t.string "supervisor_type"
     t.string "token"
     t.decimal "total_hours", precision: 10, scale: 2
@@ -176,6 +187,7 @@ ActiveRecord::Schema[8.1].define(version: 101) do
     t.integer "user_id"
     t.string "user_type"
     t.text "wizard_steps"
+    t.integer "year"
     t.index ["mentor_id", "mentor_type"], name: "index_work_experience_summaries_on_mentor_id_and_mentor_type"
     t.index ["user_id", "user_type"], name: "index_work_experience_summaries_on_user_id_and_user_type"
   end

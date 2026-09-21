@@ -1,0 +1,4 @@
+- hint = EffectiveWorkExperience.show_reviews_to_intern ? "Your recommendation and comments will be shown to the #{work_experience_intern_label.downcase} after you complete this review." : "Your recommendation and comments will not be shown to the #{work_experience_intern_label.downcase}."
+= f.radios :supervisor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_supervisor_label} recommendation", required: true, hint: hint
+
+= f.article_editor :supervisor_comments, label: "#{work_experience_supervisor_label} comments", hint: hint

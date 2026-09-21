@@ -1,4 +1,4 @@
-- f.object.approve_work_experience_summary = true if f.object.recommendation == f.object.recommendations.first
-= f.check_box :approve_work_experience_summary, label: "Approve #{et(f.object)}"
+- hint = EffectiveWorkExperience.show_reviews_to_intern ? "Your recommendation and comments will be shown to the #{work_experience_intern_label.downcase} after you complete this review." : "Your recommendation and comments will not be shown to the #{work_experience_intern_label.downcase}."
+= f.radios :mentor_recommendation, work_experience_recommendation_collection, label: "#{work_experience_mentor_label} recommendation", required: true, hint: hint
 
-= f.article_editor :comments, label: 'Reviewer Comments', hint: 'These are private comments and are not displayed to the intern'
+= f.article_editor :mentor_comments, label: "#{work_experience_mentor_label} comments", hint: hint

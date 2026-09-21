@@ -1,12 +1,18 @@
-# A monthly record of work experience
+# A monthly grid or individual hours log record of work experience
 module Effective
   class WorkExperienceRecord < ActiveRecord::Base
     self.table_name = (EffectiveWorkExperience.work_experience_records_table_name || :work_experience_records).to_s
 
     belongs_to :user, polymorphic: true
 
+    attr_accessor :importing
+
+    # When in Monthly Grid mode only
     has_many :work_experience_entries, -> { order(:id) }, class_name: 'Effective::WorkExperienceEntry', inverse_of: :work_experience_record, dependent: :destroy
     accepts_nested_attributes_for :work_experience_entries, allow_destroy: true
+
+    # When in Hours Log mode only
+    belongs_to :work_experience_subcategory, class_name: 'Effective::WorkExperienceSubcategory', optional: true
 
     log_changes(to: :user) if respond_to?(:log_changes)
     has_many_rich_texts
@@ -21,8 +27,12 @@ module Effective
       month                 :date       # The 1st day of the month of the work experience
       total_hours           :decimal    # The total number of hours worked for the month
 
+      # When in Hours Log mode
+      description           :text
+      date                  :date
+
       # There can only be one backdated work experience record
-      backdated             :boolean, default: false
+      backdated             :boolean, default: false, permitted: :admin
 
       # Acts as Statused
       status                :string
@@ -34,7 +44,7 @@ module Effective
       timestamps
     end
 
-    before_validation do
+    before_validation(if: -> { EffectiveWorkExperience.monthly_grid? }) do
       assign_attributes(total_hours: work_experience_entries.sum(&:hours).round(2))
     end
 
@@ -45,12 +55,26 @@ module Effective
 
     validates :month, presence: true, unless: -> { backdated }
     validates :month, absence: true, if: -> { backdated }
-
-    validates :month, uniqueness: { scope: [:user_id, :user_type] }
     validates :total_hours, numericality: { greater_than_or_equal_to: 0.0 }
+
+    with_options(if: -> { EffectiveWorkExperience.monthly_grid? }) do
+      validates :month, uniqueness: { scope: [:user_id, :user_type] }
+    end
+
+    with_options(if: -> { EffectiveWorkExperience.hours_log? }) do
+      validates :description, presence: true
+      validates :date, presence: true
+      validates :work_experience_subcategory, presence: true
+    end
 
     validate(if: -> { month.present? }) do
       errors.add(:month, 'must be the first day of the month') unless month.day == 1
+    end
+
+    validate(if: -> { user.present? && month.present? && (new_record? || will_save_change_to_total_hours? || will_save_change_to_month?) }, unless: -> { importing }) do
+      if user.work_experience_summaries.done.where(start_on: month.beginning_of_quarter).exists?
+        errors.add(:month, 'belongs to a submitted work experience summary')
+      end
     end
 
     scope :sorted, -> { order(:month) }
@@ -58,11 +82,7 @@ module Effective
     scope :during, ->(months) { where(month: months) }
 
     def to_s
-      month&.strftime('%B %Y') || model_name.human
-    end
-
-    def work_experience_subcategories
-      Effective::WorkExperienceSubcategory.all.sorted
+      description.presence || month&.strftime('%B %Y') || model_name.human
     end
 
     # Find or build

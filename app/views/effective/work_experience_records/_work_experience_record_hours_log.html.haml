@@ -1,0 +1,7 @@
+= card(et(work_experience_record.class)) do
+  = effective_table_with(work_experience_record, additionally: [:user, :month, :description, :date, :total_hours, :work_experience_subcategory]) do |f|
+    = f.content_for :month, label: 'Month' do
+      = f.object.month&.strftime('%F') || 'Backdated'
+
+    = f.content_for :total_hours do
+      = work_experience_hours_to_s(f.object.total_hours)

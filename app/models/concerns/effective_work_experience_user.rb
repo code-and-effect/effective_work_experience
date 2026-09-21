@@ -5,10 +5,8 @@
 # Mark your user model with effective_work_experience_user to get the work experience associations
 # and the hours calculations used by the records, summaries and reports.
 #
-# Requires a work_experience_mentor_id column on your users table.
+# Requires work_experience_mentor_id and work_experience_supervisor_id columns on your users table.
 #
-# Your user model may also define:
-# - supervisor        the user responsible for this intern's day to day work
 
 module EffectiveWorkExperienceUser
   extend ActiveSupport::Concern
@@ -27,8 +25,12 @@ module EffectiveWorkExperienceUser
     # The user who reviews my work experience summaries
     belongs_to :work_experience_mentor, class_name: name, optional: true
 
+    # The user responsible for my day-to-day work experience
+    belongs_to :work_experience_supervisor, class_name: name, optional: true
+
     # The interns I am a mentor for
     has_many :work_experience_mentees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_mentor_id, inverse_of: :work_experience_mentor, dependent: :nullify
+    has_many :work_experience_supervisees, -> { order(:id) }, class_name: name, foreign_key: :work_experience_supervisor_id, inverse_of: :work_experience_supervisor, dependent: :nullify
 
     # There is only ever one. The has_many is for the admin form fields.
     # reject_if so the blank one built by the form is ignored unless it's filled in.
@@ -51,27 +53,41 @@ module EffectiveWorkExperienceUser
     has_many :work_experience_records, -> { order(:month) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceRecord'
     has_many :work_experience_entries, -> { order(:id) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceEntry'
     has_many :work_experience_projects, -> { order(:start_on) }, as: :user, dependent: :destroy, class_name: 'Effective::WorkExperienceProject'
-
     has_many :work_experience_summaries, -> { order(:start_on) }, as: :user, dependent: :destroy, class_name: EffectiveWorkExperience.class_name(name, :work_experience_summaries)
 
     # I'm the mentor for these work experience summaries
     has_many :mentee_work_experience_summaries, -> { order(:start_on) }, as: :mentor, class_name: EffectiveWorkExperience.class_name(name, :work_experience_summaries)
+    has_many :supervisee_work_experience_summaries, -> { order(:start_on) }, as: :supervisor, class_name: EffectiveWorkExperience.class_name(name, :work_experience_summaries)
 
     scope :work_experience_mentors, -> { where(id: unscoped.select(:work_experience_mentor_id)) }
+    scope :work_experience_supervisors, -> { where(id: unscoped.select(:work_experience_supervisor_id)) }
 
     scope :deep_work_experience, -> {
-      includes(:work_experience_mentor)
+      includes(:work_experience_mentor, :work_experience_supervisor)
       .includes(work_experience_records: [work_experience_entries: { work_experience_subcategory: :work_experience_category }])
     }
   end
 
+  def current_work_experience_category
+    categories = Array(EffectiveWorkExperience.categories)
+    return if categories.blank?
+
+    if self.class.try(:effective_memberships_user?)
+      categories.find { |cat| membership.try(:category).to_s == cat }
+    end
+  end
+
   def work_experience_intern?
-    return true if try(:intern?) || try(:pre_intern?)
+    return true if try(:intern?) || try(:pre_intern?) || try(:any_intern?)
     work_experience_records.present? || work_experience_summaries.present?
   end
 
   def work_experience_mentor?
     work_experience_mentees.present? || mentee_work_experience_summaries.present?
+  end
+
+  def work_experience_supervisor?
+    work_experience_supervisees.present? || supervisee_work_experience_summaries.present?
   end
 
   # This intern's mentor does not have an account. Their summaries are reviewed automatically.
@@ -83,8 +99,18 @@ module EffectiveWorkExperienceUser
     @work_experience_subcategories ||= Effective::WorkExperienceSubcategory.all.sorted
   end
 
+  def work_experience_approved_hours(category:)
+    work_experience_summaries.where(category: category, status: [:approved, :auto_approved]).sum(:total_hours).round(2)
+  end
+
   # One subcategory and month
   def work_experience_hours(month:, work_experience_subcategory: nil)
+    if EffectiveWorkExperience.hours_log?
+      records = work_experience_records.select { |record| record.month == month }
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
+    end
+
     work_experience_record = work_experience_records.find { |record| record.month == month }
     return 0.0 if work_experience_record.blank?
 
@@ -101,6 +127,12 @@ module EffectiveWorkExperienceUser
   def work_experience_hours_by_year(year:, work_experience_subcategory: nil)
     work_experience_records_in_year = work_experience_records.select { |record| record.month.present? && record.month.year == year }
     return 0.0 if work_experience_records_in_year.blank?
+
+    if EffectiveWorkExperience.hours_log?
+      records = work_experience_records_in_year
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
+    end
 
     hours = if work_experience_subcategory.present?
       work_experience_records_in_year.sum { |record| record.work_experience_entry(work_experience_subcategory: work_experience_subcategory).hours }
@@ -120,6 +152,12 @@ module EffectiveWorkExperienceUser
     end
 
     return 0.0 if work_experience_records_to_date.blank?
+
+    if EffectiveWorkExperience.hours_log?
+      records = work_experience_records_to_date
+      records = records.select { |record| record.work_experience_subcategory_id == work_experience_subcategory.id } if work_experience_subcategory.present?
+      return records.sum { |record| record.total_hours.to_f }.round(2)
+    end
 
     hours = work_experience_records_to_date.sum do |work_experience_record|
       if work_experience_subcategory.present?

@@ -3,12 +3,27 @@ EffectiveWorkExperience.setup do |config|
   # Any class you provide here should be marked with effective_work_experience_summary
   # config.work_experience_summary_class_name = 'Effective::WorkExperienceSummary'
 
+  # How work experience is recorded: :monthly_grid or :hours_log
+  config.mode = :monthly_grid
+
+  # Display supervisor columns alongside mentor columns in work experience datatables
+  config.use_supervisor = false
+
   # The number of months in each work experience summary period
   # Display only for now. Every period is one calendar quarter.
   config.summary_months = 3
 
+  # Optional categories recorded on work experience summaries
+  config.categories = []
+
   # The recommendations a mentor may make when reviewing a work experience summary
   config.recommendations = ['Recommend Approve', 'Recommend Decline']
+
+  # Show completed mentor and supervisor reviews to the intern
+  config.show_reviews_to_intern = false
+
+  # Optional CC address for daily summary reminders.
+  # config.reminder_cc = nil
 
   # Layout Settings
   # Configure the Layout per controller, or all at once
@@ -28,7 +43,4 @@ EffectiveWorkExperience.setup do |config|
   # config.mailer_sender = nil      # Default From value
   # config.mailer_admin = nil       # Default To value for Admin correspondence
   # config.mailer_subject = nil     # Proc.new method used to customize Subject
-
-  # Will work with effective_email_templates gem
-  config.use_effective_email_templates = true
 end

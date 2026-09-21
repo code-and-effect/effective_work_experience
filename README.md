@@ -42,7 +42,7 @@ rake db:migrate
 
 - `Effective::WorkExperienceCategory` — the top level grouping, with a minimum hours target
 - `Effective::WorkExperienceSubcategory` — belongs to a category. Hours are recorded against these.
-- `Effective::WorkExperienceRecord` — one intern's hours for one month
+- `Effective::WorkExperienceRecord` — an intern's monthly grid or individual hours log
 - `Effective::WorkExperienceEntry` — one row of a record. Five weeks of hours for one subcategory.
 - `Effective::WorkExperienceProject` — one project an intern worked on
 - `Effective::WorkExperienceSummary` — one period, submitted by the intern and reviewed by their mentor
@@ -77,13 +77,14 @@ don't.
 
 ## User
 
-An intern's mentor is another user, so this gem needs one column on your users table. The install
-migration does not add it. Write your own:
+An intern's mentor and supervisor are other users, so this gem needs two columns on your users
+table. The install migration does not add them. Write your own:
 
 ```ruby
 class AddWorkExperienceMentorToUsers < ActiveRecord::Migration[8.0]
   def change
     add_column :users, :work_experience_mentor_id, :integer
+    add_column :users, :work_experience_supervisor_id, :integer
   end
 end
 ```
@@ -97,6 +98,8 @@ effective_work_experience_user
 which adds the `belongs_to :work_experience_mentor` for that column, plus:
 
 - `work_experience_mentees` — the interns I am a mentor for
+- `work_experience_supervisor` and `work_experience_supervisees` — the supervisor and their interns
+- `supervisee_work_experience_summaries` — summaries assigned to me as supervisor
 - `work_experience_outside_mentor` — my mentor when they don't have an account. A `has_one`.
 - `work_experience_records`, `work_experience_entries`, `work_experience_projects`, `work_experience_summaries`, `mentee_work_experience_summaries`
 - the `work_experience_hours`, `work_experience_hours_by_year` and `work_experience_total_hours_to_date` calculations
@@ -104,7 +107,10 @@ which adds the `belongs_to :work_experience_mentor` for that column, plus:
 
 An intern with an outside mentor has no `work_experience_mentor`, so their summaries are reviewed automatically on submit.
 
-The summary's `user`, `mentor` and `supervisor` are polymorphic. A summary assigns its mentor from the user's `work_experience_mentor`, and its supervisor from the user's `supervisor` when your User model defines one.
+The summary's `user`, `mentor` and `supervisor` are polymorphic. A summary assigns its mentor from
+the user's `work_experience_mentor`, and its supervisor from `work_experience_supervisor` when
+assigned. `work_experience_supervisor?` includes both current supervisees and assigned summaries.
+Supervisors can view submitted summaries; independent supervisor approvals are not implemented yet.
 
 ### Who is an intern
 
@@ -146,13 +152,22 @@ Render the dashboard partials from your own dashboard:
 - if current_user.work_experience_intern?
   = render 'effective/work_experience/dashboard_intern'
 
-- if current_user.work_experience_mentor?
+- if current_user.work_experience_mentor? || current_user.work_experience_supervisor?
   = render 'effective/work_experience/dashboard_mentor'
 ```
 
 ## Configuration
 
 All configuration options are documented in the `config/initializers/effective_work_experience.rb` initializer.
+
+### Labels
+
+The helpers follow the CPD naming convention: `work_experience_record_label` /
+`work_experience_records_label`, with equivalent singular/plural helpers for entries,
+projects, summaries, reports, categories, subcategories, interns, mentors, and supervisors.
+`work_experience_name_label` returns the module name. They use the existing `et` / `ets` helpers
+and model/attribute translations. To call mentors "Advisors", translate the summary's `mentor`
+attribute in the tenant locale.
 
 ## Authorization
 

@@ -7,10 +7,15 @@ module Admin
       col :created_at, visible: false
       col :id, visible: false
 
-      col :user, label: 'Intern'
+      col :user, label: work_experience_intern_label
 
       col(:month) do |work_experience_record|
         work_experience_record.month&.strftime('%F') || 'Backdated'
+      end
+
+      if EffectiveWorkExperience.hours_log?
+        col(:work_experience_subcategory, label: 'Category', search: Effective::WorkExperienceSubcategory.all)
+        col(:description)
       end
 
       col(:total_hours, label: 'Hours') do |work_experience_record|

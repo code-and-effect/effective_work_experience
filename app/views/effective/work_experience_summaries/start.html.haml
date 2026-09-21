@@ -6,9 +6,9 @@
       = f.hidden_field :id
 
       - if f.object.mentor.blank?
-        %p You have not yet been assigned a mentor. Please contact the office to be assigned a mentor.
+        %p No #{work_experience_mentor_label.downcase} has been assigned. Please contact the office to be assigned one.
       - else
-        %p Your mentor for this #{etd(f.object.class)} is #{f.object.mentor}.
+        %p Your #{work_experience_mentor_label.downcase} for this #{etd(f.object.class)} is #{f.object.mentor}.
         %p Please contact the office if this is incorrect.
 
       = render('effective/work_experience_summaries/start_fields', f: f)

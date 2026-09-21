@@ -13,6 +13,7 @@ EffectiveWorkExperience::Engine.routes.draw do
 
     resources :work_experience_summaries, only: [:new, :create, :show, :destroy] do
       resources :build, controller: :work_experience_summaries, only: [:show, :update]
+      post :unsubmit, on: :member
     end
   end
 
@@ -22,7 +23,12 @@ EffectiveWorkExperience::Engine.routes.draw do
     resources :work_experience_projects
     resources :work_experience_records
     resources :work_experience_reports, only: [:index, :show]
-    resources :work_experience_summaries, only: [:index, :show, :edit, :update, :destroy]
+    resources :work_experience_summaries, only: [:index, :show, :edit, :update, :destroy] do
+      post :unsubmit, on: :member
+      post :mark_as_submitted, on: :member
+      post :mark_as_approved, on: :member
+      post :mark_as_declined, on: :member
+    end
   end
 
 end

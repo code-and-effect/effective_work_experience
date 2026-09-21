@@ -1,8 +1,12 @@
 module Admin
   class EffectiveWorkExperienceReportsDatatable < Effective::Datatable
     datatable do
-      col :user, label: 'Intern'
-      col :mentor
+      col :user, label: work_experience_intern_label
+      col :mentor, label: work_experience_mentor_label
+
+      if EffectiveWorkExperience.use_supervisor?
+        col :supervisor, label: work_experience_supervisor_label
+      end
 
       col(:total_hours, label: 'Total hours to date', as: :decimal) do |hours|
         work_experience_hours_to_s(hours)
@@ -21,12 +25,9 @@ module Admin
       users = user_klass.deep_work_experience.where(id: work_experience_records.select(:user_id))
 
       users.map do |user|
-        [
-          user,
-          user.work_experience_mentor,
-          user.work_experience_total_hours_to_date(month: Time.zone.now.end_of_year),
-          user
-        ]
+        row = [user, user.work_experience_mentor]
+        row << user.work_experience_supervisor if EffectiveWorkExperience.use_supervisor?
+        row + [user.work_experience_total_hours_to_date(month: Time.zone.now.end_of_year), user]
       end
     end
 

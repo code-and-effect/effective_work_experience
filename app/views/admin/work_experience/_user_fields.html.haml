@@ -5,13 +5,17 @@
 
 = f.hide_if(:work_experience_outside_mentor_present, true) do
   = f.select :work_experience_mentor_id, current_user.class.all, ajax_url: ajax_url,
-    label: 'Intern work experience mentor',
+    label: work_experience_mentor_label,
     hint: local_assigns[:hint]
 
-= f.check_box :work_experience_outside_mentor_present, label: 'Intern work experience mentor is from another regulated profession'
+- if EffectiveWorkExperience.use_supervisor?
+  = f.select :work_experience_supervisor_id, current_user.class.all, ajax_url: ajax_url,
+    label: work_experience_supervisor_label
+
+= f.check_box :work_experience_outside_mentor_present, label: "#{work_experience_intern_label} #{work_experience_name_label.downcase} #{work_experience_mentor_label.downcase} is from another regulated profession"
 
 = f.show_if(:work_experience_outside_mentor_present, true) do
-  = card('Outside Mentor') do
+  = card(et(Effective::WorkExperienceOutsideMentor)) do
     -# One outside mentor is built. It's ignored unless the fields are filled in.
     = f.has_many :work_experience_outside_mentors, label: false, add: false, remove: false, reorder: false do |fo|
       = render('effective/work_experience_outside_mentors/fields', f: fo)

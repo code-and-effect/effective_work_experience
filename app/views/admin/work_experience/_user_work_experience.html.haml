@@ -6,16 +6,16 @@
     = render('effective/work_experience_reports/work_experience_report', work_experience_report: work_experience_report)
 
 = card(EffectiveWorkExperience.WorkExperienceSummary) do
-  %p.text-muted #{EffectiveWorkExperience.summary_months}-month work experience summaries are submitted by the intern and approved by their mentor.
+  %p.text-muted #{EffectiveWorkExperience.summary_months}-month #{work_experience_summaries_label.downcase} are submitted by the #{work_experience_intern_label.downcase} and approved by their #{work_experience_mentor_label.downcase}.
   - datatable = Admin::EffectiveWorkExperienceSummariesDatatable.new(user: user)
   = render_datatable(datatable, inline: true)
 
 = card(Effective::WorkExperienceRecord) do
-  %p.text-muted Monthly work experience records are used to keep track of the intern's hours each month.
+  %p.text-muted Monthly #{work_experience_records_label.downcase} are used to keep track of the #{work_experience_intern_label.downcase}'s hours each month.
   - datatable = Admin::EffectiveWorkExperienceRecordsDatatable.new(user: user)
   = render_datatable(datatable, inline: true)
 
 = card(Effective::WorkExperienceProject) do
-  %p.text-muted Work experience projects are used to keep track of the intern's projects.
+  %p.text-muted #{work_experience_projects_label} are used to keep track of the #{work_experience_intern_label.downcase}'s projects.
   - datatable = Admin::EffectiveWorkExperienceProjectsDatatable.new(user: user)
   = render_datatable(datatable, inline: true)
