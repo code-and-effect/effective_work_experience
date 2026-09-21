@@ -110,12 +110,9 @@ module EffectiveWorkExperienceSummary
     scope :needs_reminder, -> { none }
     scope :needs_auto_approval, -> { none }
 
-    before_validation do
-      # Only assign from the user when they have the association. Otherwise leave whatever was assigned.
-      assign_attributes(mentor: user.try(:work_experience_mentor), supervisor: user.try(:work_experience_supervisor))
-    end
-
-    before_validation(if: -> { category.blank? && user.present? }) do
+    before_validation(if: -> { user.present? }) do
+      self.mentor ||= user.work_experience_mentor
+      self.supervisor ||= user.work_experience_supervisor
       self.category ||= user.current_work_experience_category
     end
 
